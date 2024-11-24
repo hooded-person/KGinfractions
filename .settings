@@ -1,0 +1,5 @@
+{
+  [ "list.show_hidden" ] = true,
+  [ "motd.enable" ] = false,
+  [ "sword.checkForUpdates" ] = true,
+}
