@@ -1,1 +1,0 @@
-i=0;a=math.random();c=true;while c do i=i+1;local b = math.random()==a;c = not b;write(i.." - "); if b then term.setTextColor(colors.green);print(b) else term.setTextColor(colors.red);print(b) end term.setTextColor(colors.white);sleep(0) end
