@@ -64,7 +64,10 @@ for k, _ in pairs(templateListBuild["type"]) do
     table.insert(templateList["type"], k)
 end
 
-
+---@param offset number offset too add too current time
+---@param pattern string patern too return time string in
+---@param timezone string
+---@return string the date/time string 
 local function getCurrentDate(offset, pattern, timezone)
     offset = offset or 0
     pattern = pattern or "%d/%m/%Y"
