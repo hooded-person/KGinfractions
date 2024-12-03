@@ -108,7 +108,7 @@ function Selection:getDragX(amount)
     for i = #self.drag, #self.drag-amount, -1 do 
         table.insert(dragXs, self.drag[i][1])
     end
-    return table.unpack(dragYs)
+    return table.unpack(dragXs) 
 end
 function Selection:getDragY(amount)
     if not amount then amount = 1 end
