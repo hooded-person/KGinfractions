@@ -8,7 +8,7 @@ function Selection:new(o)
 end
 
 ---@param item any The item too add the the array
----@param index any the index at which to add the item
+---@param index? any the index at which to add the item
 function Selection:add(item, index)
     if index then
         table.insert(self.selected, index, item)
@@ -17,7 +17,7 @@ function Selection:add(item, index)
     end
 end
 
----@param index any the index at which to remove the item
+---@param index? any the index at which to remove the item
 function Selection:remove(index)
     if index then
         table.remove(self.selected, index)
@@ -42,9 +42,9 @@ function Selection:clear()
 end
 
 ---@param match any The value too match against
----@param pm boolean Use pattern matching
----@return boolean Wether the match was successfull
----@return any if successfull, the index of the match otherwise nil
+---@param pm? boolean Use pattern matching
+---@return boolean succes Wether the match was successfull
+---@return any matchIndex if successfull, the index of the match otherwise nil
 function Selection:contains(match, pm)
     -- if returnI == nil then returnq = false end | removed cause doesn't seem to do shit
     if pm == nil then pm = false end
@@ -63,6 +63,7 @@ function Selection:contains(match, pm)
     return false, nil
 end
 
+---@param item any Adds item if it does not exists, removes it if it does.
 function Selection:toggle(item)
     local exists, itemI = self:contains(item)
     if exists then
@@ -74,6 +75,8 @@ function Selection:toggle(item)
     end
 end
 
+---@param value boolean New value for selecting, if nil current value is returned 
+---@return boolean? Wether selecting or not
 function Selection:isSelecting(value)
     if value ~= nil then 
         assert(type(value) == "boolean")
@@ -89,10 +92,15 @@ function Selection:startDrag(x, y)
     self.drag = {{x, y}}
 end
 
+---@return boolean Wether draging or not
 function Selection:hasDrag()
     local hasDrag = self.drag ~= nil
     return hasDrag
 end
+
+---@param x any X position that was dragged to
+---@param y any Y position that was dragged to
+---@return table position of old drag
 function Selection:moveDrag(x, y)
     local hasDrag = self.drag ~= nil
     local oldDrag = self.drag[#self.drag]
@@ -102,6 +110,9 @@ function Selection:moveDrag(x, y)
     return oldDrag
 end
 
+
+---@param amount any The amount of x values too return
+---@return number X values of drag
 function Selection:getDragX(amount)
     if not amount then amount = 1 end
     local dragXs = {}
@@ -110,6 +121,9 @@ function Selection:getDragX(amount)
     end
     return table.unpack(dragXs) 
 end
+
+---@param amount any The amount of y values too return
+---@return number Y values of drag
 function Selection:getDragY(amount)
     if not amount then amount = 1 end
     local dragYs = {}
@@ -119,12 +133,14 @@ function Selection:getDragY(amount)
     end
     return table.unpack(dragYs)
 end
+
+---@return table returns all the drag values
 function Selection:getDrag()
     return self.drag 
 end
 
----@return number starting X pos of selection
----@return number starting Y pos of selection
+---@return number? starting X pos of selection
+---@return number? starting Y pos of selection
 function Selection:endDrag()
     local drag = self.drag
     if not drag then return nil, nil end

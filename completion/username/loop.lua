@@ -39,7 +39,7 @@ listWin.setBackgroundColor(colors.gray)
 listWin.clear()
 
 
-function main()
+local function main()
     os.queueEvent("updated",0,width,height)
     while true do
         local event, user, dimension = os.pullEvent("playerJoin")
@@ -67,7 +67,7 @@ function main()
     end
 end
 
-function dispList(items,win)
+local function dispList(items,win)
     for i,v in ipairs(items) do
         win.write(v)
         local x,y = win.getCursorPos()
@@ -75,7 +75,7 @@ function dispList(items,win)
     end
 end
 
-function list()
+local function list()
     print("running list()")
     local width,height = term.getSize()
 

@@ -17,28 +17,6 @@ settings.define("kgTF.typeColors", {
     },
     type = "table",
 })
--- QOL functions
-function fakeLoading(data) -- debug print that waits for a couple seconds so you can read it, for no reason whats o ever
-    local text = data[1] or ""
-    local time = data.time or 2
-
-    parallel.waitForAny(
-        function() -- rendering funky loading bar
-            local x, y = term.getCursorPos()
-            local list = { "|", "/", "-", "\\" }
-            local i = 1
-            write(list[1] .. " " .. text)
-            while true do
-                sleep(0.1)
-                i = i + 1
-                if i > #list then i = 1 end
-                term.setCursorPos(x, y)
-                write(list[i])
-            end
-        end,
-        function() sleep(time) end -- actuall time
-    )
-end
 
 -- aa
 local popup = { show = false }
@@ -59,7 +37,7 @@ function popup:get()
 end
 
 -- handlers
-function makeHandler(handler, reason, type) -- what did i have in mind for reason and type? no idea
+local function makeHandler(handler, reason, type) -- what did i have in mind for reason and type? no idea
     return function(...)
         local args = { ... }
         local entry = args[1]
@@ -100,7 +78,7 @@ local handleExpiredWarn = makeHandler(function(typeColors, entry, UUID)
 end, "expired", "warn") -- what did i have in mind for these vars? no idea
 
 -- boolean getter functions
-function isShown(item, barButtons)
+local function isShown(item, barButtons)
     local showPending = barButtons[2].submenu[1].typeData.toggled
     local showHandled = barButtons[2].submenu[2].typeData.toggled
     local showExpired = barButtons[2].submenu[3].typeData.toggled
@@ -117,7 +95,7 @@ function isShown(item, barButtons)
 end
 
 -- main functions
-function renderDB(uuids, items, expandedUUID, expandedFormatData, sort, scroll, barButtons, selection)
+local function renderDB(uuids, items, expandedUUID, expandedFormatData, sort, scroll, barButtons, selection)
     if expandedFormatData == nil then expandedFormatData = false end
 
     -- rendering
@@ -150,7 +128,7 @@ function renderDB(uuids, items, expandedUUID, expandedFormatData, sort, scroll, 
                 term.setBackgroundColor(colors.black)
             end
             term.clearLine()
-            entry = items[uuid] -- set entry
+            local entry = items[uuid] -- set entry
             local x, y = term.getCursorPos()
             local isExpired
             if entry.handled == nil then entry.handled = false end                -- force handled to be a boolean (sorta)
@@ -271,7 +249,7 @@ ButtonLib.getLabel = function(button, subMenu)
     end
 end
 -- if selection:size() == 0 then return false end
-function renderBottomBar(barButtons)
+local function renderBottomBar(barButtons)
     term.setBackgroundColor(colors.gray)
     local width, height = term.getSize()
     term.setCursorPos(1, height)
@@ -284,13 +262,13 @@ function renderBottomBar(barButtons)
                 term.setTextColor(colors.black)
                 term.setBackgroundColor(colors.lightGray)
 
-                menuTop = y - #button.submenu - 1
+                local menuTop = y - #button.submenu - 1
                 button.submenu.pos = { x, menuTop + 1 }
                 button.submenu.size = { 0, #button.submenu }
                 for i, subButton in ipairs(button.submenu) do
                     term.setCursorPos(x, menuTop + i)
                     if subButton.expanded then term.setBackgroundColor(colors.white) end
-                    label = ButtonLib.getLabel(subButton, button.submenu)
+                    local label = ButtonLib.getLabel(subButton, button.submenu)
                     write(label)
                     if #label > button.submenu.size[1] then button.submenu.size[1] = #label end
                     term.setBackgroundColor(colors.lightGray)
@@ -335,7 +313,7 @@ function renderBottomBar(barButtons)
     return barButtons
 end
 
-function containsExpandedButton(buttonMenu, indexList)
+local function containsExpandedButton(buttonMenu, indexList)
     if not indexList then indexList = {} end
     local expandedButton
     for i, button in ipairs(buttonMenu) do
@@ -351,7 +329,7 @@ function containsExpandedButton(buttonMenu, indexList)
     return nil
 end
 
-function restoreBackToMain(button, indexList)
+local function restoreBackToMain(button, indexList)
     local buttonMenu
     for i, v in ipairs(indexList) do
 
@@ -359,7 +337,7 @@ function restoreBackToMain(button, indexList)
     return buttonMenu
 end
 
-function captureInputForDB(items, indexToUUID, sort, scroll, uuids, barButtons, selection)
+local function captureInputForDB(items, indexToUUID, sort, scroll, uuids, barButtons, selection, expandedUUID, expandedFormatData)
     local width, height = term.getSize()
     local results = { os.pullEvent() }
     if query.enabled then
@@ -384,7 +362,7 @@ function captureInputForDB(items, indexToUUID, sort, scroll, uuids, barButtons, 
         end
         if query.enabled and query.queryFn then
             for i = 1, #uuids do
-                uuid = uuids[i]
+                local uuid = uuids[i]
                 local success, res = pcall(query.queryFn, items[uuid])
                 if success and res then
                     selection:add(uuid)
@@ -528,7 +506,7 @@ function captureInputForDB(items, indexToUUID, sort, scroll, uuids, barButtons, 
     return expandedUUID, expandedFormatData, sort, scroll, barButtons
 end
 
-function getBarButtons(selection)
+local function getBarButtons(selection)
     local barButtons
     barButtons = {
         {
@@ -636,7 +614,7 @@ function getBarButtons(selection)
     return barButtons
 end
 
-function displayDB()
+local function displayDB()
     -- defaults
     local indexToUUID = {} -- for keeping track of rows and clicks
     local expandedUUID, expandedFormatData = nil, false
@@ -644,7 +622,7 @@ function displayDB()
     -- manage selection
     selection = require("/libs/selectionManager"):new() -- add an tracking var too the selection to know when too do shit
     -- vars for sorting
-    function sortFuncGen(sortFunc)
+    local function sortFuncGen(sortFunc)
         return function(...)
             local a, b = ...
             local result, same = sortFunc(a, b)
@@ -711,7 +689,7 @@ function displayDB()
 
         expandedUUID, expandedFormatData, sort, scroll, barButtons = captureInputForDB(items, indexToUUID, sort, scroll,
             uuids,
-            barButtons, selection)
+            barButtons, selection, expandedUUID, expandedFormatData)
     end
 end
 

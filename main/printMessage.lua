@@ -4,7 +4,7 @@ local printerHost = 15
 local templateDir = "templates/"
 if templateDir:sub(-1) ~= "/" then templateDir = templateDir .. "/" end
 
-function getTemplateDoc(template, formatData)
+local function getTemplateDoc(template, formatData)
     local tempType, reason, _, path = table.unpack(template)
     local h = fs.open(templateDir .. path, "r")
     local template = h.readAll()

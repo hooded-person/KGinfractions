@@ -73,7 +73,7 @@ term.clear()
 term.setCursorPos(1, 1)
 local entry = db.get(entryUuids[1])
 
-function prepareValue(value)
+local function prepareValue(value)
     if type(value) == "string" then
         term.setTextColor(colors.red)
         return '"' .. value .. '"'
@@ -96,13 +96,13 @@ function prepareValue(value)
     end
 end
 
-function printValue(value)
+local function printValue(value)
     value = prepareValue(value)
     print(value)
     term.setTextColor(colors.white)
 end
 
-function showTable(loopTable, trackTable, depth, maxDepth)
+local function showTable(loopTable, trackTable, depth, maxDepth)
     if depth == nil then depth = 0 end
     if maxDepth == nil then maxDepth = -1 end
 
@@ -145,12 +145,12 @@ function showTable(loopTable, trackTable, depth, maxDepth)
     end
 end
 
-function getInput(entry, rowTracking)
+local function getInput(entry, rowTracking)
     local event, button, x, y = os.pullEvent("mouse_click")
     local clickedItem = rowTracking[y]
     if clickedItem[1] == "}" then return false end
 
-    query = ""
+    local query = ""
     for typeChar, match in clickedItem[1]:gmatch("([.,])([^.,]*)") do
         if typeChar == "." then
             match = '["' .. match .. '"]'
@@ -159,7 +159,7 @@ function getInput(entry, rowTracking)
         end
         query = query .. match
     end
-    currentValue = load("return searchingTable" .. query, "=generatedIndexing", "t", { searchingTable = entry })()
+    local currentValue = load("return searchingTable" .. query, "=generatedIndexing", "t", { searchingTable = entry })()
 
     --print(clickedItem[1])
     term.setCursorPos(clickedItem[2] + 1, y)

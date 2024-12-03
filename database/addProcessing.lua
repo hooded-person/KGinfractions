@@ -95,6 +95,7 @@ local function notifyWebhook(processedData)
 end
 
 db.add = db._INTERNAL.base(function(data, toInsert)
+---@diagnostic disable-next-line: missing-parameter
     math.randomseed()
     local uuid
     local tries = 0

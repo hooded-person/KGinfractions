@@ -23,7 +23,7 @@
 -- end
 -- retrieved = load("return searchingTable"..query, "=generatedIndexing", "t", { searchingTable = targetTable } )()
 -- print(retrieved)
-entry = {
+local entry = {
     user = "Janko1902",
     source = "M.re-print",
     deadline = 1730895132,
@@ -41,8 +41,8 @@ entry = {
     },
 }
 
-queryInput = "template"
-queryFn, err = load(
+local queryInput = "template"
+local queryFn, err = load(
     "input=...; input.type=input.template[1]; input.template=input.template[2]; input.reason=input.template[2];_ENV = setmetatable({setmetatable = setmetatable}, {__index = input}) return " ..
     queryInput,
     "=query",

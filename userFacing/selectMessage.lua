@@ -24,7 +24,7 @@ for i, templatePath in ipairs(templatesStrings) do
     local validTemplate = templatePath:sub(-5) == ".sdoc" 
         and templatePath:sub(1,4) ~= "hide"
     if validTemplate then
-        template = templatePath:gsub(".sdoc", "")
+        local template = templatePath:gsub(".sdoc", "")
         local keywords = {}
         local str = template:gsub("^%U*", "")
         for wrd in str:gmatch("%u%U*") do
@@ -40,7 +40,7 @@ for i, templatePath in ipairs(templatesStrings) do
             table.insert(dataVars, match)
         end
         -- setup table
-        typeIndex = string.upper(template:match("^%U*")) -- warn or evic
+        local typeIndex = string.upper(template:match("^%U*")) -- warn or evic
         if not templates[typeIndex] then templates[typeIndex] = {} end
         table.insert(templates[typeIndex], {
             string.upper(template:match("^%U*")),
@@ -64,10 +64,10 @@ for k, _ in pairs(templateListBuild["type"]) do
     table.insert(templateList["type"], k)
 end
 
----@param offset number offset too add too current time
----@param pattern string patern too return time string in
----@param timezone string
----@return string the date/time string 
+---@param offset? number offset too add too current time
+---@param pattern? string patern too return time string in
+---@param timezone? string
+---@return string|osdate the date/time string 
 local function getCurrentDate(offset, pattern, timezone)
     offset = offset or 0
     pattern = pattern or "%d/%m/%Y"
@@ -193,7 +193,7 @@ local function drawArea(selectedType, selectedTemplate, tempSelected)
     local selectedTypeTemplates = templates[ templateList["type"][selectedType] ]
     for i = 1, #selectedTypeTemplates do
         term.setTextColor(colors.white)
-        name = selectedTypeTemplates[i][2]
+        local name = selectedTypeTemplates[i][2]
         if selectedTypeTemplates[selectedTemplate][2] == name then
             term.setCursorPos(29, select(2, term.getCursorPos()) + 1)
             if tempSelected then

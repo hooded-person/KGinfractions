@@ -172,7 +172,7 @@ alphabet[" "] = {"\x20\x20\x20","\x20\x20\x20","\x20\x20\x20"} -- add space
 return function (input)
     local out = {"","",""}
     for i=1, #input do -- generate table with 3 lines
-        v = input:sub(i, i):lower()
+        local v = input:sub(i, i):lower()
         if alphabet[v] then
             out[1] = out[1] .. alphabet[v][1]
             out[2] = out[2] .. alphabet[v][2]

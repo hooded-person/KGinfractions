@@ -1,5 +1,5 @@
 local completion = require"cc.completion"
-mainPath = "completion/username"
+local mainPath = "completion/username"
 local filePath = fs.combine(mainPath,"players.lon")
 
 local h, er = fs.open(filePath,"r")

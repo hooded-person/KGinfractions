@@ -27,7 +27,7 @@ for i, templatePath in ipairs(templatesStrings) do
     local validTemplate = templatePath:sub(-5) == ".sdoc" 
         and templatePath:sub(1,4) ~= "hide"
     if validTemplate then
-        template = templatePath:gsub(".sdoc", "")
+        local template = templatePath:gsub(".sdoc", "")
         local keywords = {}
         local str = template:gsub("^%U*", "")
         for wrd in str:gmatch("%u%U*") do
@@ -43,7 +43,7 @@ for i, templatePath in ipairs(templatesStrings) do
             table.insert(dataVars, match)
         end
         -- setup table
-        typeIndex = string.upper(template:match("^%U*")) -- warn or evic
+        local typeIndex = string.upper(template:match("^%U*")) -- warn or evic
         if not templates[typeIndex] then templates[typeIndex] = {} end
         templates[typeIndex][table.concat(keywords, " ")] = {
             string.upper(template:match("^%U*")),

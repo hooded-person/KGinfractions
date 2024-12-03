@@ -12,7 +12,10 @@ checks.number = function(a,b)
 end
 
 local tests = {}
-function test(check, match)
+---@param check any Item to check
+---@param match? any Item to match against, if nil then it is the full db
+---@param name? string Name for this test otherwise uses its index in the test table
+local function test(check, match, name)
     if not match then match = db.get() end
     local result = checks[type(check)](check, match)
     table.insert(tests, result )
