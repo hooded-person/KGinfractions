@@ -1,1 +1,52 @@
-{}
+{
+  [ "c81bb905-252b-006b-4726-960879395586" ] = {
+    source = "M.selectMessage.lua",
+    template = {
+      "EVIC",
+      "no stock",
+    },
+    deadline = -1,
+    formatData = {
+      dateOfIssue = "1/12/2024",
+      user = "james",
+      date = "04/12/2024",
+      deadlineGiven = "2/12/2024",
+    },
+    templateFile = "evicNoStock.sdoc",
+    time = 1733265418.432,
+    user = "james",
+  },
+  [ "19370069-470a-9875-cb6c-99488bc56ca8" ] = {
+    user = "KingGreen",
+    source = "M.selectMessage.lua",
+    deadline = 1733483532,
+    time = 1733265394.068,
+    templateFile = "warnNoStock.sdoc",
+    formatData = {
+      date = "04/12/2024",
+      deadline = "06/12/2024",
+      user = "KingGreen",
+    },
+    template = {
+      "WARN",
+      "no stock",
+    },
+  },
+  [ "671bcc13-3248-10a9-5718-c28531c1a498" ] = {
+    deadline = 1733310732,
+    template = {
+      "WARN",
+      "illegal item",
+    },
+    user = "Hooded",
+    time = 1733265444.489,
+    templateFile = "warnIllegalItem.sdoc",
+    formatData = {
+      date = "04/12/2024",
+      deadline = "04/12/2024",
+      item = "bedrock",
+      user = "Hooded",
+    },
+    source = "M.selectMessage.lua",
+  },
+}

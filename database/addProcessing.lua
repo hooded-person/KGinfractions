@@ -20,7 +20,7 @@ local db = require "/database"
   "attachments": []
 }
 --]]
-function getToken()
+local function getToken()
     local h = fs.open("/tokens/webhook.token", "r")
     local token = h.readAll()
     h.close()
@@ -36,7 +36,7 @@ settings.define("kgTF.typeColors", {
     },
     type = "table",
 })
-function notifyWebhook(processedData)
+local function notifyWebhook(processedData)
     -- text for displaying deadline
     local deadlineTxt = (processedData.deadline ~= -1) and
         "deadline set for <t:" .. processedData.deadline .. ">(<t:" .. processedData.deadline .. ":R>)" or ""

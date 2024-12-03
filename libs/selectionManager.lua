@@ -8,7 +8,7 @@ function Selection:new(o)
 end
 
 ---@param item any The item too add the the array
----@param index the index at which to add the item
+---@param index any the index at which to add the item
 function Selection:add(item, index)
     if index then
         table.insert(self.selected, index, item)
@@ -17,7 +17,7 @@ function Selection:add(item, index)
     end
 end
 
----@param index the index at which to remove the item
+---@param index any the index at which to remove the item
 function Selection:remove(index)
     if index then
         table.remove(self.selected, index)
@@ -44,8 +44,9 @@ end
 ---@param match any The value too match against
 ---@param pm boolean Use pattern matching
 ---@return boolean Wether the match was successfull
+---@return any if successfull, the index of the match otherwise nil
 function Selection:contains(match, pm)
-    if returnI == nil then returnq = false end
+    -- if returnI == nil then returnq = false end | removed cause doesn't seem to do shit
     if pm == nil then pm = false end
     if pm then assert(type(match) == string, "pattern matching requires a string as match") end
     for i, v in ipairs( self.selected ) do

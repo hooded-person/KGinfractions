@@ -19,9 +19,9 @@ local h=fs.open(filePath,"w")
 h.write(textutils.serialise(times))
 h.close()--]]
 
-local h = fs.open(filePath,"r")
+local h, err = fs.open(filePath,"r")
 if not h then
-    error(er)
+    error(err)
 end
 local times = textutils.unserialise(h.readAll())
 h.close()

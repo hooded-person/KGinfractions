@@ -10,7 +10,7 @@ settings.define("kgDB.faultyDBtolerance", {
 })
 
 ---@param coreFunc function the function that is wrapped
----@param saveData boolean whether too save the data after running the function (save exec time when not modified)
+---@param saveData? boolean whether too save the data after running the function (save exec time when not modified)
 ---@return function the wrapped function
 db._INTERNAL.base = function(coreFunc,saveData)
     if saveData == nil then saveData = true end
@@ -27,7 +27,7 @@ db._INTERNAL.base = function(coreFunc,saveData)
             error("faulty database, could not unserialise. Too use an empty database next time, set 'kgDB.faultyDBtolerance' too true")
         end
 
-        result = { coreFunc(data, table.unpack(args)) }
+        local result = { coreFunc(data, table.unpack(args)) }
         if saveData then
             data = textutils.serialise(data)
             local h = fs.open(db.dataPath,"w")
@@ -79,8 +79,8 @@ db.maxn = db._INTERNAL.base(function (data)
     return table.maxn(data)
 end)
 
----@param index the index for the item too set
----@param newdata the value to set
+---@param index any the index for the item too set
+---@param newdata any the value to set
 db.set = db._INTERNAL.base(function (data, index, newdata)
     assert( type(data)=="table", "data is not a table, internal error or some")
     assert( type(index)~="table", "tabled indexing is not supported for set, get the value and then modify it further")
@@ -98,8 +98,8 @@ db.set = db._INTERNAL.base(function (data, index, newdata)
     item = newdata --]]
 end)
 
----@param index the index for the item too get
----@return the retrieved item
+---@param index any the index for the item too get
+---@return any the retrieved item
 db.get = db._INTERNAL.base(function (data, index)
     assert( type(data)=="table", "data is not a table, internal error or some")
 
