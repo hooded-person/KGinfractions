@@ -1,7 +1,7 @@
 local db = {}
 db._INTERNAL = {}
 db.dirPath = "database"
-db.dataPath = fs.combine(db.dirPath,"data.lua")
+db.dataPath = fs.combine(db.dirPath,"data.lon")
 
 settings.define("kgDB.faultyDBtolerance", {
     description = "Wether too tolerate a faulty DB and continue with empty or too error",

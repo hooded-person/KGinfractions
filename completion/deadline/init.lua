@@ -1,6 +1,6 @@
 local completion = require"cc.completion"
 local mainPath = "completion/deadline"
-local filePath = fs.combine(mainPath,"times.lua")
+local filePath = fs.combine(mainPath,"times.lon")
 
 local times = {}
 --[[

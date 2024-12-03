@@ -18,7 +18,7 @@ local function printC(sText, cColor,win)
     if win then term.redirect(oldWin) end
 end
 local mainPath = "completion/username"
-local filePath = fs.combine(mainPath,"players.lua")
+local filePath = fs.combine(mainPath,"players.lon")
 
 local ratio = 35
 local width,height = term.getSize()
