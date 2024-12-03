@@ -9,6 +9,41 @@
         "tokens",
         "userFacing"
     ],
-    "files": [".:","LICENSE","README.md","completion","counter.lua","database","failed","libs","listTemplates.lua","main","rawterm.lua","setup","startup.lua","startupScripts","sword.lua","templates","tokens","userFacing","","./completion:","deadline","username","","./completion/deadline:","init.lua","times.lua","","./completion/username:","init.lua","loop.lua","players.lua","","./database:","addProcessing.lua","data.lua","init.lua","test.lua","tests.lua","","./failed:","UF.viewDatabasewithWindow.21-18.30-10-2024.lua","","./libs:","loadPath.lua","selectionManager.lua","spclib.lua","","./main:","alphabet.lua","backtrackTable.lua","bigF.lua","getTemplate.lua","input.lua","modifyDBentries.lua","printMessage.lua","printTXT.lua","selectMessageBackup.lua","","./setup:","installer.lua","prgmFiles.json","prgmFiles1.json","","./startupScripts:","loadUserInterface.lua","runCompletionLoops.lua","swordAutocompletion.lua","","./templates:","evicIllegalItem.sdoc","evicLaggyFarm.sdoc","evicNoStock.sdoc","evicUglyChanges.sdoc","hideTemplateShop.sdoc","hideTemplateStaff.sdoc","warnIllegalItem.sdoc","warnLaggyFarm.sdoc","warnNoStock.sdoc","warnUglyChanges.sdoc","","./tokens:","webhook.token","","./userFacing:","selectMessage.lua","testing.lua","viewDatabase.lua"]
-
+    "criteria": {
+        "templates": "Template"
+    },
+    "files": [
+        "completion/init.lua",
+        "completion/times.lua",
+        "completion/init.lua",
+        "completion/loop.lua",
+        "completion/players.lua",
+        "database/addProcessing.lua",
+        "database/data.lua",
+        "database/init.lua",
+        "database/test.lua",
+        "database/tests.lua",
+        "libs/loadPath.lua",
+        "libs/selectionManager.lua",
+        "libs/spclib.lua",
+        "main/alphabet.lua",
+        "main/backtrackTable.lua",
+        "main/bigF.lua",
+        "main/getTemplate.lua",
+        "main/input.lua",
+        "main/modifyDBentries.lua",
+        "main/printMessage.lua",
+        "main/printTXT.lua",
+        "main/selectMessageBackup.lua",
+        "startupScripts/loadUserInterface.lua",
+        "startupScripts/runCompletionLoops.lua",
+        "startupScripts/swordAutocompletion.lua",
+        "templates/hideTemplateShop.sdoc",
+        "templates/hideTemplateStaff.sdoc",
+        "tokens/webhook.token",
+        "userFacing/listTemplates.lua",
+        "userFacing/selectMessage.lua",
+        "userFacing/testing.lua",
+        "userFacing/viewDatabase.lua"
+    ]
 }
