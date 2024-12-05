@@ -51,6 +51,9 @@ local function main()
         local players = h.readAll()
         h.close()
         players = textutils.unserialise(players)
+        if not players then 
+            players = {{},{}}
+        end
         if not players[1][user] then
             table.insert(players[2],user)
             players[1][user] = true
