@@ -9,15 +9,7 @@
         "tokens",
         "userFacing"
     ],
-    "criteria": {
-        "templates": "Template"
-    },
     "files": [
-        "completion/init.lua",
-        "completion/times.lon",
-        "completion/init.lua",
-        "completion/loop.lua",
-        "completion/players.lon",
         "database/addProcessing.lua",
         "database/data.lon",
         "database/init.lua",
@@ -37,12 +29,33 @@
         "startupScripts/loadUserInterface.lua",
         "startupScripts/runCompletionLoops.lua",
         "startupScripts/swordAutocompletion.lua",
-        "templates/hideTemplateShop.sdoc",
-        "templates/hideTemplateStaff.sdoc",
         "tokens/webhook.token",
         "userFacing/listTemplates.lua",
         "userFacing/selectMessage.lua",
         "userFacing/testing.lua",
         "userFacing/viewDatabase.lua"
-    ]
+    ],
+    "modules": {
+        "templates":{
+            "name":"example templates",
+            "dirs":["templates"],
+            "files":[
+                "templates/hideTemplateShop.sdoc",
+                "templates/hideTemplateStaff.sdoc"
+            ]
+        },
+        "completion.username":{
+            "name":"Username completion",
+            "dirs":["completion","completion/username"],
+            "files":[
+                "completion/username/init.lua",
+                "completion/username/loop.lua"]
+        },
+        "completion.deadline":{
+            "name":"Deadline completion",
+            "dirs":["completion","completion/deadline"],
+            "files":[
+                "completion/deadline/init.lua"]
+        }
+    }
 }

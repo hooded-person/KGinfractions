@@ -1,5 +1,7 @@
 import json, os, re
 
+raise Exception("running this will fuck up 'prgmFiles.json', but it's not worth deleting")
+
 with open("./setup/prgmFiles.json","r+") as json_file:
     fileLocations = json.load(json_file)
     fileLocations['files'] = []
