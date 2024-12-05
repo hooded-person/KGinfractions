@@ -1,3 +1,7 @@
+term.setTextColor(colors.white)
+term.setBackgroundColor(colors.black)
+term.clear()
+
 local fileHost = "https://raw.githubusercontent.com/";
 local repoLoc = "hooded-person".."/".."KGinfractions";
 local inbeteenShit = "/refs/heads/";
