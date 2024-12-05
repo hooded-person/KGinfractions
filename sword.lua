@@ -1,3 +1,4 @@
+---@diagnostic disable: missing-parameter
 local sdoc = {}
 
 local mbar = {}

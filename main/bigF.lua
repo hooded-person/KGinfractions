@@ -1,4 +1,4 @@
----@diagnostic disable
+---@diagnostic disable: missing-parameter, redundant-parameter
 -------------------------------------------------------------------------------------
 -- Wojbies API 5.0 - Bigfont - functions to write bigger font using drawing sybols --
 -------------------------------------------------------------------------------------
