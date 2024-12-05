@@ -3,12 +3,12 @@ term.setBackgroundColor(colors.black)
 term.clear()
 
 local fileHost = "https://raw.githubusercontent.com/";
-local repoLoc = "hooded-person".."/".."KGinfractions";
+local repoLoc = "hooded-person" .. "/" .. "KGinfractions";
 local inbeteenShit = "/refs/heads/";
 local file = "main/setup/prgmFiles.json";
-local pgrmFilesURL = fileHost..repoLoc..inbeteenShit..file;
+local pgrmFilesURL = fileHost .. repoLoc .. inbeteenShit .. file;
 
-local function softError(err)
+local function warn(err)
     local oldColor = term.getTextColor()
     term.setTextColor(colors.red)
     print(err)
@@ -31,7 +31,7 @@ local function getUrl(url)
     local body = response.readAll();
     response.close();
     if err then -- show http errors (will be double up with github, ex. "HTTP 404\n 404: not found")
-        local errMsg = "HTTP "..statusCode.."\n"..body;
+        local errMsg = "HTTP " .. statusCode .. "\n" .. body;
         error(errMsg);
     end;
     return not err, {
@@ -51,18 +51,45 @@ local function getJsonData(url)
     local headers = responseData.headers
     local body = responseData.body
 
-    assert(headers["Content-Type"] == "text/plain; charset=utf-8", 
+    assert(headers["Content-Type"] == "text/plain; charset=utf-8",
         "unexpected content type,\nResponse header 'Content-Type' did not match 'text/plain; charset=utf-8'"
-        );
+    );
 
     local jsonData = textutils.unserialiseJSON(body);
-    assert(prgmFiles ~= nil, "failed too unserialise response file");
+    assert(jsonData ~= nil, "failed too unserialise response file");
     return jsonData, responseData
 end
 
-local function downloadFile(url)
+---@param url string The url from which to download the file
+---@param filePath string The filepath too which to downlaod the file
+local function downloadFile(url, filePath)
     local success, responseData = getUrl(url)
-    
+    local headers = responseData.headers
+    local body = responseData.body
+
+    assert(headers["Content-Type"] == "text/plain; charset=utf-8",
+        "unexpected content type,\nResponse header 'Content-Type' did not match 'text/plain; charset=utf-8'"
+    );
+
+    -- handle file existing
+    if fs.exists(filePath) then
+        warn(("The file '%s' already exists"):format(filePath))
+        local input
+        repeat
+            print("would you like to overwrite this file. y/n")
+            input = read()
+        until input == "y" or input == "n"
+        if input ~= "y" then
+            ---@diagnostic disable-next-line: undefined-global
+            abort() -- currently undefined, will also end the installer :/
+        end
+    end
+
+    local h, err = fs.open("filePath","w")
+    if err then return false, err end
+    h.write(body)
+    h.close()
+    return true
 end
 
 local prgmFiles = getJsonData(pgrmFilesURL)
@@ -73,16 +100,17 @@ local projectRoot
 repeat
     print("Enter filepath for program location (or 'abort' to abort)")
     projectRoot = read()
-    if projectRoot == "" then softError("please input a value")
-    elseif projectRoot == "abort" then 
+    if projectRoot == "" then
+        warn("please input a value")
+    elseif projectRoot == "abort" then
         error("install aborted")
-    elseif fs.isReadOnly(projectRoot) then 
-        softError("Path is read only")
+    elseif fs.isReadOnly(projectRoot) then
+        warn("Path is read only")
     elseif projectRoot ~= "/" then
-        softError("Currently only installing in root is supported")
-    else 
+        warn("Currently only installing in root is supported")
+    else
         success = true
-        projectRoot = projectRoot..(projectRoot:sub(-1)=="/" and "" or "/")
+        projectRoot = projectRoot .. (projectRoot:sub(-1) == "/" and "" or "/")
     end
 until success
 settings.define("KGinfractions.root", {
@@ -93,15 +121,21 @@ settings.define("KGinfractions.root", {
 settings.set("KGinfractions.root", projectRoot)
 settings.save()
 
-local function installItems(directories, files)
+---@param directories table
+---@param files table
+---@param fileSource string Start of the url to which requested files will be appended (for getting from github: 'https://raw.githubusercontent.com/USER/REPO//refs/heads/BRANCH/')
+---@return nil
+local function installItems(directories, files, fileSource)
     for directory in ipairs(directories) do
-        local dirPath = settings.get("KGinfractions.root")..directory
+        local dirPath = settings.get("KGinfractions.root") .. directory
         fs.makeDir(dirPath)
     end
     for file in ipairs(files) do
-        downloadFile(fileLocation..file)
+        downloadFile(fileSource .. file)
     end
 end
+
 -- always install
-installItems(prgmFiles.directories, prgmFiles.files)
+installItems(prgmFiles.directories, prgmFiles.files, prgmFiles.fileLocation)
+
 -- handle optional modules/templates
