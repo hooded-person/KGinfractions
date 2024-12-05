@@ -8,6 +8,28 @@ local inbeteenShit = "/refs/heads/";
 local file = "main/setup/prgmFiles.json";
 local pgrmFilesURL = fileHost .. repoLoc .. inbeteenShit .. file;
 
+local fsChanges = {}
+
+-- aborting installation and rollback filesystem
+local function abort()
+    for fsChange in ipairs(fsChanges) do 
+        local action = fsChange.action
+        local type = fsChange.type -- file or directory
+    end
+end
+---@param filePath string Path of new file
+---@param fileContent string Content of the new file
+---@return boolean success Wether file was made successfully
+---@return string? error Error if file was not made successfully
+local function newFile(filePath, fileContent)
+    local h, err = fs.open(filePath, "w")
+    fsChanges:insert({action="new",type="file",path=filePath})
+    if err then return false, err end
+    h.write(fileContent)
+    h.close()
+    return true
+end
+
 local function warn(err)
     local oldColor = term.getTextColor()
     term.setTextColor(colors.red)
@@ -43,8 +65,8 @@ end
 
 
 ---@param url string the url to get json data from
----@return table unserialised JSON data
----@return table full response data
+---@return table jsonData unserialised JSON data
+---@return table responseData full response data
 local function getJsonData(url)
     local success, responseData = getUrl(url)
     local statusCode = responseData.statusCode
@@ -84,12 +106,7 @@ local function downloadFile(url, filePath)
             abort() -- currently undefined, will also end the installer :/
         end
     end
-
-    local h, err = fs.open("filePath", "w")
-    if err then return false, err end
-    h.write(body)
-    h.close()
-    return true
+    newFile(filePath, body)
 end
 
 local prgmFiles = getJsonData(pgrmFilesURL)
@@ -124,14 +141,13 @@ settings.save()
 ---@param directories table
 ---@param files table
 ---@param fileSource string Start of the url to which requested files will be appended (for getting from github: 'https://raw.githubusercontent.com/USER/REPO//refs/heads/BRANCH/')
----@return nil
 local function installItems(directories, files, fileSource)
     for directory in ipairs(directories) do
         local dirPath = settings.get("KGinfractions.root") .. directory
         fs.makeDir(dirPath)
     end
     for file in ipairs(files) do
-        downloadFile(fileSource .. file)
+        downloadFile(fileSource .. file, file)
     end
 end
 
