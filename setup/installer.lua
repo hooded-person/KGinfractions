@@ -31,7 +31,7 @@ local function getUrl(url)
     local body = response.readAll();
     response.close();
     if err then -- show http errors (will be double up with github, ex. "HTTP 404\n 404: not found")
-        local errMsg = "HTTP " .. statusCode .. "\n" .. body;
+        local errMsg = "HTTP " .. statusCode .. " " .. url .. "\n" .. body;
         error(errMsg);
     end;
     return not err, {
@@ -85,7 +85,7 @@ local function downloadFile(url, filePath)
         end
     end
 
-    local h, err = fs.open("filePath","w")
+    local h, err = fs.open("filePath", "w")
     if err then return false, err end
     h.write(body)
     h.close()
