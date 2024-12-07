@@ -1,3 +1,4 @@
+-- v:0
 term.setTextColor(colors.white)
 term.setBackgroundColor(colors.black)
 term.clear()
@@ -13,7 +14,7 @@ local fsChanges = {}
 
 -- aborting installation and rollback filesystem
 local function abort()
-    for fsChange in ipairs(fsChanges) do 
+    for _, fsChange in ipairs(fsChanges) do 
         local action = fsChange.action
         local type = fsChange.type -- file or directory
     end
@@ -143,11 +144,11 @@ settings.save()
 ---@param files table
 ---@param fileSource string Start of the url to which requested files will be appended (for getting from github: 'https://raw.githubusercontent.com/USER/REPO//refs/heads/BRANCH/')
 local function installItems(directories, files, fileSource)
-    for directory in ipairs(directories) do
+    for _, directory in ipairs(directories) do
         local dirPath = settings.get("KGinfractions.root") .. directory
         fs.makeDir(dirPath)
     end
-    for file in ipairs(files) do
+    for _, file in ipairs(files) do
         downloadFile(fileSource .. file, file)
     end
 end
