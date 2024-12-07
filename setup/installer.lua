@@ -1,6 +1,7 @@
 term.setTextColor(colors.white)
 term.setBackgroundColor(colors.black)
 term.clear()
+term.setCursorPos(1,1)
 
 local fileHost = "https://raw.githubusercontent.com/";
 local repoLoc = "hooded-person" .. "/" .. "KGinfractions";
