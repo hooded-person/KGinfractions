@@ -12,7 +12,6 @@
     ],
     "files": [
         "database/addProcessing.lua",
-        "database/data.lon",
         "database/init.lua",
         "database/test.lua",
         "database/tests.lua",
