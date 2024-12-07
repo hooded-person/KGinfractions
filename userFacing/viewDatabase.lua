@@ -511,7 +511,15 @@ local function getBarButtons(selection)
     barButtons = {
         {
             label = "New",
-            click = loadfile("/userFacing/selectMessage"),
+            click = function() 
+                local func, err = loadfile("/userFacing/selectMessage") 
+                if err then 
+                    error(err) 
+                elseif func == nil then
+                    error("function from file '/userFacing/selectMessage' is nil but no error was given")
+                end
+                func()
+            end,
         },
         {
             label = "View",
