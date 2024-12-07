@@ -1,4 +1,4 @@
-local version = 0
+local version = 1
 print("testing installer")
 local fileHost = "https://raw.githubusercontent.com/";
 local repoLoc = "hooded-person".."/".."KGinfractions";
@@ -73,6 +73,10 @@ local installerInfo = getInstallerInfo(installerFileUrl)
 print(("version: %d\ninstaller version: %s\ninstaller data version: %s"):format(version, installerInfo.v, installerInfo.dataVersion))
 local outdatedItem = (tonumber(version) < tonumber(expectedSelfVersion) and "self") or (tonumber(installerInfo.v) < tonumber(expectedVersion) and "installer") or (tonumber(installerInfo.dataVersion) < tonumber(expectedDataVersion) and "installer data")
 if outdatedItem then
+    if outdatedItem == "self" then 
+        fs.delete("startup.lua")
+        shell.run("wget "..installerTestFileURL.." startup.lua")
+    end
     local h = fs.open("rebootTimeout.txt","r")
     local rebootTimeout
     if h then
