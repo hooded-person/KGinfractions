@@ -71,9 +71,13 @@ local installerInfo = getInstallerInfo(installerFileUrl)
 local outdatedItem = (tonumber(installerInfo.v) < tonumber(expectedVersion) and "installer") or (tonumber(installerInfo.dataVersion) < tonumber(expectedDataVersion) and "installer data")
 if outdatedItem then
     local h = fs.open("rebootTimeout.txt","r")
-    local rebootTimeout = tonumber(h.readAll())
-    h.close()
-    rebootTimeout = rebootTimeout and rebootTimeout*2 or 5
+    local rebootTimeout
+    if h then
+        rebootTimeout = tonumber(h.readAll())*2 or 5
+        h.close()
+    else
+        rebootTimeout = 5
+    end
     local h = fs.open("rebootTimeout.txt","w")
     h.write(tostring(rebootTimeout))
     h.close()
