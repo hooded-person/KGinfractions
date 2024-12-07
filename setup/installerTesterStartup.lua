@@ -54,7 +54,7 @@ local function getInstallerInfo(installerURL)
         local v = infoItem:sub(seperatorI+1)
         info[k]=v
     end
-    local prgmFiles = getJsonData("https://raw.githubusercontent.com/hooded-person/KGinfractions/refs/heads/main/")
+    local prgmFiles = getJsonData("https://raw.githubusercontent.com/hooded-person/KGinfractions/refs/heads/main/setup/prgmFiles.json")
     info.dataVersion = prgmFiles.version
     return info
 end
@@ -99,7 +99,7 @@ shell.run("rm *")
 shell.run("wget "..installerTestFileURL.." startup.lua")
 
 local h = fs.open("expectedVersion.txt","w")
-h.write(expectedVersion)
+h.write(expectedVersions)
 h.close()
 
 shell.run("wget run "..installerFileUrl)
