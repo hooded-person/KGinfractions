@@ -1,4 +1,4 @@
-local version = 2
+local version = 3
 print("testing installer")
 local fileHost = "https://raw.githubusercontent.com/";
 local repoLoc = "hooded-person".."/".."KGinfractions";
@@ -82,7 +82,7 @@ if outdatedItem then
     local h = fs.open("rebootTimeout.txt","r")
     local rebootTimeout
     if h then
-        rebootTimeout = tonumber(h.readAll())*2 or 5
+        rebootTimeout = tonumber(h.readAll())*3 or 5
         h.close()
     else
         rebootTimeout = 5
