@@ -1,4 +1,4 @@
-local version = 3.2
+local version = 3.3
 print("testing installer")
 local fileHost = "https://raw.githubusercontent.com/";
 local repoLoc = "hooded-person".."/".."KGinfractions";
@@ -91,12 +91,11 @@ if outdatedItem then
     h.write(tostring(rebootTimeout))
     h.close()
     local _, y  = term.getCursorPos()
-    print(("older %s version, retrying in %d seconds"):format(outdatedItem, rebootTimeout))
     for i = rebootTimeout, 1, -1 do
-        sleep(1)
         term.setCursorPos(1,y)
         term.clearLine()
         print(("older %s version, retrying in %d/%d seconds"):format(outdatedItem, i,  rebootTimeout))
+        sleep(1)
     end
     os.reboot()
 end
