@@ -1,4 +1,4 @@
--- v:0
+-- v:1
 term.setTextColor(colors.white)
 term.setBackgroundColor(colors.black)
 term.clear()
@@ -25,7 +25,7 @@ end
 ---@return string? error Error if file was not made successfully
 local function newFile(filePath, fileContent)
     local h, err = fs.open(filePath, "w")
-    fsChanges:insert({action="new",type="file",path=filePath})
+    table.insert(fsChanges, {action="new",type="file",path=filePath})
     if err then return false, err end
     h.write(fileContent)
     h.close()
