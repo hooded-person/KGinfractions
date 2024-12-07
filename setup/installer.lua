@@ -1,4 +1,4 @@
--- v:2.1
+-- v:2.2
 term.setTextColor(colors.white)
 term.setBackgroundColor(colors.black)
 term.clear()
@@ -88,7 +88,6 @@ end
 ---@param filePath string The filepath too which to downlaod the file
 ---@param notify boolean|nil Wether too print what is happenening (lot of downloads after each other otherwise looks wierd)
 local function downloadFile(url, filePath, notify)
-    print(("getting from '%s'"):format(url))
     local success, responseData = getUrl(url)
     local headers = responseData.headers
     local body = responseData.body
@@ -111,6 +110,8 @@ local function downloadFile(url, filePath, notify)
         end
     end
     newFile(filePath, body)
+    term.setCursorPos(1,3)
+    term.clearLine()
     print(("downloaded '%s'"):format(filePath))
 end
 
