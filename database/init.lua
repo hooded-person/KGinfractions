@@ -23,8 +23,8 @@ db._INTERNAL.base = function(coreFunc,saveData)
         else
             data = h.readAll()
             h.close()
+            data = textutils.unserialise(data)
         end
-        data = textutils.unserialise(data)
 
         if data == nil and settings.get("kgDB.faultyDBtolerance") then 
             data={} 
