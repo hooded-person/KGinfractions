@@ -1,5 +1,6 @@
 {
-    "fileLocation":"https://raw.githubusercontent.com/hooded-person/KGinfractions/refs/heads/main/",
+    "version": 1,
+    "fileLocation": "https://raw.githubusercontent.com/hooded-person/KGinfractions/refs/heads/main/",
     "directories": [
         "completion",
         "database",
@@ -36,41 +37,57 @@
         "userFacing/viewDatabase.lua"
     ],
     "modules": {
-        "templates":{
-            "name":"example templates",
-            "dirs":["templates"],
-            "files":[
+        "templates": {
+            "name": "example templates",
+            "dirs": [
+                "templates"
+            ],
+            "files": [
                 "templates/hideTemplateShop.sdoc",
                 "templates/hideTemplateStaff.sdoc"
             ]
         },
-        "completion.username":{
-            "name":"Username completion",
-            "dirs":["completion","completion/username"],
-            "files":[
+        "completion.username": {
+            "name": "Username completion",
+            "dirs": [
+                "completion",
+                "completion/username"
+            ],
+            "files": [
                 "completion/username/init.lua",
-                "completion/username/loop.lua"]
+                "completion/username/loop.lua"
+            ]
         },
-        "completion.deadline":{
-            "name":"Deadline completion",
-            "dirs":["completion","completion/deadline"],
-            "files":[
-                "completion/deadline/init.lua"]
+        "completion.deadline": {
+            "name": "Deadline completion",
+            "dirs": [
+                "completion",
+                "completion/deadline"
+            ],
+            "files": [
+                "completion/deadline/init.lua"
+            ]
         },
-        "examples.testData":{
-            "name":"test data for database",
-            "dirs":["database"],
-            "files":[
-                "database/data.lon"]
-
+        "examples.testData": {
+            "name": "test data for database",
+            "dirs": [
+                "database"
+            ],
+            "files": [
+                "database/data.lon"
+            ]
         },
-        "examples.testUsers":{
-            "name":"test users for user autocompletion",
-            "dependencies":["completion.username"],
-            "dirs":["database"],
-            "files":[
-                "database/data.lon"]
-
+        "examples.testUsers": {
+            "name": "test users for user autocompletion",
+            "dependencies": [
+                "completion.username"
+            ],
+            "dirs": [
+                "database"
+            ],
+            "files": [
+                "database/data.lon"
+            ]
         }
     }
 }
