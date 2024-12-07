@@ -22,8 +22,11 @@ local db = require "/database"
 --]]
 local function getToken()
     local h = fs.open("/tokens/webhook.token", "r")
-    local token = h.readAll()
-    h.close()
+    local token
+    if h then
+        token = h.readAll()
+        h.close()
+    end
     return token
 end
 
@@ -37,6 +40,10 @@ settings.define("kgTF.typeColors", {
     type = "table",
 })
 local function notifyWebhook(processedData)
+    local token = getToken()
+    if not token then
+        return false, { code = nil, headers = nil, body = nil, cause = "no token" }
+    end
     -- text for displaying deadline
     local deadlineTxt = (processedData.deadline ~= -1) and
         "deadline set for <t:" .. processedData.deadline .. ">(<t:" .. processedData.deadline .. ":R>)" or ""
@@ -80,7 +87,7 @@ local function notifyWebhook(processedData)
     }
     -- make the request
     local res, success, failRes = http.post({
-        url = getToken(),
+        url = token,
         method = "POST",
         headers = {
             ["content-type"] = "application/json"
@@ -89,13 +96,13 @@ local function notifyWebhook(processedData)
     })
     if not res then
         return false,
-            { code = failRes.getResponseCode(), headers = failRes.getResponseHeaders(), body = failRes.readAll() }
+            { code = failRes.getResponseCode(), headers = failRes.getResponseHeaders(), body = failRes.readAll(), cause = "failed http" }
     end
     return true, { code = res.getResponseCode(), headers = res.getResponseHeaders(), body = res.readAll() }
 end
 
 db.add = db._INTERNAL.base(function(data, toInsert)
----@diagnostic disable-next-line: missing-parameter
+    ---@diagnostic disable-next-line: missing-parameter
     math.randomseed()
     local uuid
     local tries = 0
@@ -143,11 +150,12 @@ db.process = function(toProcess) -- does not use `data`, but calls other functio
     if not info.tests then info.tests = {} end
     local insertedCorrect = info.inserted == processed
     info.tests.insertedCorrect = insertedCorrect -- tests are returned for analysation incase of an error
---[[local wasInserted = textutils.serialise(db.get(info.reference)) == textutils.serialise(info.inserted)
+    --[[local wasInserted = textutils.serialise(db.get(info.reference)) == textutils.serialise(info.inserted)
     info.tests.wasInserted = wasInserted         -- tests are returned for analysation incase of an error]]
-    local testsPassed = insertedCorrect --and wasInserted | disabled cause comparing the contents of 2 fucking tables and not their pointers is fucking anoying and i aint doing that shit
+    local testsPassed =
+    insertedCorrect                     --and wasInserted | disabled cause comparing the contents of 2 fucking tables and not their pointers is fucking anoying and i aint doing that shit
 
-    return success and testsPassed, info
+    return testsPassed, info
 end
 
 return db

@@ -30,7 +30,6 @@
         "startupScripts/loadUserInterface.lua",
         "startupScripts/runCompletionLoops.lua",
         "startupScripts/swordAutocompletion.lua",
-        "tokens/webhook.token",
         "userFacing/listTemplates.lua",
         "userFacing/selectMessage.lua",
         "userFacing/testing.lua",
