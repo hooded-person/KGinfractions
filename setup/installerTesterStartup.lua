@@ -1,4 +1,4 @@
-local version = 3.4
+local version = 4
 print("testing installer")
 local fileHost = "https://raw.githubusercontent.com/";
 local repoLoc = "hooded-person".."/".."KGinfractions";
@@ -71,7 +71,9 @@ h.close()
 print("checking installer version")
 local installerInfo = getInstallerInfo(installerFileUrl)
 print(("version: %f\ninstaller version: %s\ninstaller data version: %s"):format(version, installerInfo.v, installerInfo.dataVersion))
-local outdatedItem = (tonumber(version) < tonumber(expectedSelfVersion) and "self") or (tonumber(installerInfo.v) < tonumber(expectedVersion) and "installer") or (tonumber(installerInfo.dataVersion) < tonumber(expectedDataVersion) and "installer data")
+
+local outdated = (tonumber(version) < tonumber(expectedSelfVersion) and {"self",expectedSelfVersion}) or (tonumber(installerInfo.v) < tonumber(expectedVersion) and {"installer",expectedVersion}) or (tonumber(installerInfo.dataVersion) < tonumber(expectedDataVersion) and {"installer data", expectedDataVersion}) or {}
+local outdatedItem = outdated[1]
 if outdatedItem then
     if outdatedItem == "self" then 
         term.setTextColor(colors.gray)
@@ -90,11 +92,12 @@ if outdatedItem then
     local h = fs.open("rebootTimeout.txt","w")
     h.write(tostring(rebootTimeout))
     h.close()
+    print(("older %s version, expected %f"):format(outdatedItem, tonumber(outdated[2])))
     local _, y  = term.getCursorPos()
     for i = rebootTimeout, 1, -1 do
         term.setCursorPos(1, y)
         term.clearLine()
-        print(("older %s version, retrying in %d/%d seconds"):format(outdatedItem, i,  rebootTimeout))
+        print(("retrying in %d/%d seconds"):format(i,  rebootTimeout))
         sleep(1)
     end
     os.reboot()
