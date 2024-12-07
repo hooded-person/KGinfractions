@@ -70,7 +70,7 @@ h.close()
 
 print("checking installer version")
 local installerInfo = getInstallerInfo(installerFileUrl)
-print(("version: %d\ninstaller version: %s\ninstaller data version: %s"):format(version, installerInfo.v, installerInfo.dataVersion))
+print(("version: %f\ninstaller version: %s\ninstaller data version: %s"):format(version, installerInfo.v, installerInfo.dataVersion))
 local outdatedItem = (tonumber(version) < tonumber(expectedSelfVersion) and "self") or (tonumber(installerInfo.v) < tonumber(expectedVersion) and "installer") or (tonumber(installerInfo.dataVersion) < tonumber(expectedDataVersion) and "installer data")
 if outdatedItem then
     if outdatedItem == "self" then 
