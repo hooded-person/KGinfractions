@@ -511,7 +511,7 @@ local function getBarButtons(selection)
     barButtons = {
         {
             label = "New",
-            click = function() shell.run("/userFacing/selectMessage") end,
+            click = loadfile("/userFacing/selectMessage"),
         },
         {
             label = "View",
