@@ -31,6 +31,19 @@ local function getUrl(url)
         body = body
     };
 end
+local function getJsonData(url)
+    local _, responseData = getUrl(url)
+    local headers = responseData.headers
+    local body = responseData.body
+
+    assert(headers["Content-Type"] == "text/plain; charset=utf-8",
+        "unexpected content type,\nResponse header 'Content-Type' did not match 'text/plain; charset=utf-8'"
+    );
+
+    local jsonData = textutils.unserialiseJSON(body);
+    assert(jsonData ~= nil, "failed too unserialise response file");
+    return jsonData, responseData
+end
 
 local function getInstallerInfo(installerURL)
     local success, responseData = getUrl(installerURL)
@@ -41,16 +54,22 @@ local function getInstallerInfo(installerURL)
         local v = infoItem:sub(seperatorI+1)
         info[k]=v
     end
+    local prgmFiles = getJsonData("https://raw.githubusercontent.com/hooded-person/KGinfractions/refs/heads/main/")
+    info.dataVersion = prgmFiles.version
     return info
 end
 
 local h = fs.open("expectedVersion.txt","r")
-local expectedVersion = h.readAll() or "0"
+local expectedVersions = h.readAll() or "0|0"
+local seperatorI = expectedVersions:find("|")
+local expectedVersion = expectedVersions:sub(0,seperatorI-1)
+local expectedDataVersion = expectedVersions:sub(seperatorI+1)
 h.close()
 
 print("checking installer version")
 local installerInfo = getInstallerInfo(installerFileUrl)
-if tonumber(installerInfo.v) < tonumber(expectedVersion) then
+local outdatedItem = (tonumber(installerInfo.v) < tonumber(expectedVersion) and "installer") or (tonumber(installerInfo.dataVersion) < tonumber(expectedDataVersion) and "installer data")
+if outdatedItem then
     local h = fs.open("rebootTimeout.txt","r")
     local rebootTimeout = tonumber(h.readAll())
     h.close()
@@ -58,7 +77,7 @@ if tonumber(installerInfo.v) < tonumber(expectedVersion) then
     local h = fs.open("rebootTimeout.txt","w")
     h.write(tostring(rebootTimeout))
     h.close()
-    print(("older installer version, retrying in %d seconds"):format(rebootTimeout))
+    print(("older %s version, retrying in %d seconds"):format(outdatedItem, rebootTimeout))
     sleep(rebootTimeout)
     os.reboot()
 end
