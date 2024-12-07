@@ -1,4 +1,4 @@
--- v:2
+-- v:2.1
 term.setTextColor(colors.white)
 term.setBackgroundColor(colors.black)
 term.clear()
@@ -110,7 +110,6 @@ local function downloadFile(url, filePath, notify)
             abort() -- currently undefined, will also end the installer :/
         end
     end
-    print("")
     newFile(filePath, body)
     print(("downloaded '%s'"):format(filePath))
 end
