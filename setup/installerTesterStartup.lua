@@ -51,10 +51,18 @@ h.close()
 print("checking installer version")
 local installerInfo = getInstallerInfo(installerFileUrl)
 if tonumber(installerInfo.v) < tonumber(expectedVersion) then
-    print("older installer version, retrying in 20 seconds")
-    sleep(20)
+    local h = fs.open("rebootTimeout.txt","r")
+    local rebootTimeout = tonumber(h.readAll())
+    h.close()
+    rebootTimeout = rebootTimeout and rebootTimeout*2 or 5
+    local h = fs.open("rebootTimeout.txt","w")
+    h.write(tostring(rebootTimeout))
+    h.close()
+    print(("older installer version, retrying in %d seconds"):format(rebootTimeout))
+    sleep(rebootTimeout)
     os.reboot()
 end
+fs.delete("rebootTimeout.txt")
 
 local input
 repeat
