@@ -1,3 +1,4 @@
+local version = 0
 print("testing installer")
 local fileHost = "https://raw.githubusercontent.com/";
 local repoLoc = "hooded-person".."/".."KGinfractions";
@@ -61,15 +62,16 @@ end
 
 local h = fs.open("expectedVersion.txt","r")
 local expectedVersions = h.readAll() or "0|0"
-local seperatorI = expectedVersions:find("|")
-local expectedVersion = expectedVersions:sub(0,seperatorI-1)
-local expectedDataVersion = expectedVersions:sub(seperatorI+1)
+local versionIt = expectedVersions:gmatch("([^|]*)|?")
+local expectedSelfVersion = versionIt()
+local expectedVersion = versionIt()
+local expectedDataVersion = versionIt()
 h.close()
 
 print("checking installer version")
 local installerInfo = getInstallerInfo(installerFileUrl)
-print(("installer version: %s\ninstaller data version: %s"):format(installerInfo.v, installerInfo.dataVersion))
-local outdatedItem = (tonumber(installerInfo.v) < tonumber(expectedVersion) and "installer") or (tonumber(installerInfo.dataVersion) < tonumber(expectedDataVersion) and "installer data")
+print(("version: %d\ninstaller version: %s\ninstaller data version: %s"):format(version, installerInfo.v, installerInfo.dataVersion))
+local outdatedItem = (tonumber(version) < tonumber(expectedSelfVersion) and "self") or (tonumber(installerInfo.v) < tonumber(expectedVersion) and "installer") or (tonumber(installerInfo.dataVersion) < tonumber(expectedDataVersion) and "installer data")
 if outdatedItem then
     local h = fs.open("rebootTimeout.txt","r")
     local rebootTimeout
