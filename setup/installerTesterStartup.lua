@@ -68,6 +68,7 @@ h.close()
 
 print("checking installer version")
 local installerInfo = getInstallerInfo(installerFileUrl)
+print(("installer version: %s\ninstaller data version: %s"):format(installerInfo.v, installerInfo.dataVersion))
 local outdatedItem = (tonumber(installerInfo.v) < tonumber(expectedVersion) and "installer") or (tonumber(installerInfo.dataVersion) < tonumber(expectedDataVersion) and "installer data")
 if outdatedItem then
     local h = fs.open("rebootTimeout.txt","r")
