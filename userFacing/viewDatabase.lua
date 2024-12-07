@@ -512,11 +512,11 @@ local function getBarButtons(selection)
         {
             label = "New",
             click = function() 
-                local func, err = loadfile("/userFacing/selectMessage") 
+                local func, err = loadfile("/userFacing/selectMessage.lua") 
                 if err then 
                     error(err) 
                 elseif func == nil then
-                    error("function from file '/userFacing/selectMessage' is nil but no error was given")
+                    error("function from file '/userFacing/selectMessage.lua' is nil but no error was given")
                 end
                 func()
             end,
