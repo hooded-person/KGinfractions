@@ -56,6 +56,21 @@
             "dirs":["completion","completion/deadline"],
             "files":[
                 "completion/deadline/init.lua"]
+        },
+        "examples.testData":{
+            "name":"test data for database",
+            "dirs":["database"],
+            "files":[
+                "database/data.lon"]
+
+        },
+        "examples.testUsers":{
+            "name":"test users for user autocompletion",
+            "dependencies":["completion.username"],
+            "dirs":["database"],
+            "files":[
+                "database/data.lon"]
+
         }
     }
 }
