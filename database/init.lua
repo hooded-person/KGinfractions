@@ -17,8 +17,13 @@ db._INTERNAL.base = function(coreFunc,saveData)
     return function(...) 
         local args = {...} 
         local h = fs.open(db.dataPath,"r")
-        local data = h.readAll()
-        h.close()
+        local data
+        if h == nil then -- assume no database has existed yet and create empty table for one
+            data = {}
+        else
+            data = h.readAll()
+            h.close()
+        end
         data = textutils.unserialise(data)
 
         if data == nil and settings.get("kgDB.faultyDBtolerance") then 
