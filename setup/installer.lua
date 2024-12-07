@@ -1,4 +1,4 @@
--- v:1
+-- v:2
 term.setTextColor(colors.white)
 term.setBackgroundColor(colors.black)
 term.clear()
@@ -86,7 +86,9 @@ end
 
 ---@param url string The url from which to download the file
 ---@param filePath string The filepath too which to downlaod the file
-local function downloadFile(url, filePath)
+---@param notify boolean|nil Wether too print what is happenening (lot of downloads after each other otherwise looks wierd)
+local function downloadFile(url, filePath, notify)
+    print(("getting from '%s'"):format(url))
     local success, responseData = getUrl(url)
     local headers = responseData.headers
     local body = responseData.body
@@ -108,7 +110,9 @@ local function downloadFile(url, filePath)
             abort() -- currently undefined, will also end the installer :/
         end
     end
+    print("")
     newFile(filePath, body)
+    print(("downloaded '%s'"):format(filePath))
 end
 
 local prgmFiles = getJsonData(pgrmFilesURL)
@@ -149,7 +153,7 @@ local function installItems(directories, files, fileSource)
         fs.makeDir(dirPath)
     end
     for _, file in ipairs(files) do
-        downloadFile(fileSource .. file, file)
+        downloadFile(fileSource .. file, file, true)
     end
 end
 
