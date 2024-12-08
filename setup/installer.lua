@@ -30,7 +30,7 @@ local function progressBar(amount, max, barWidth)
 
     term.setTextColor(colors.white)
     term.setBackgroundColor(colors.gray)
-    write((" "):rep(filledBars / 2 - (filledBars % 2)))
+    write((" "):rep(((bars-filledBars) / 2) - (filledBars % 2)))
 
     term.setTextColor(colors.white)
     term.setBackgroundColor(colors.black)
@@ -52,7 +52,7 @@ abortMeta.__call = function() -- main abort function
     term.setBackgroundColor(colors.black)
     term.clear()
     term.setCursorPos(1, 1)
-    print("ABORTING INSTALATION")
+    print(" ABORTING INSTALATION")
     local width, height = term.getSize()
     term.setCursorPos(2, 2)
     term.clearLine()
@@ -61,6 +61,8 @@ abortMeta.__call = function() -- main abort function
     for i, fsChange in ipairs(fsChanges) do
         local action = fsChange.action
         local type = fsChange.type -- file or directory
+        term.setCursorPos(1, 4)
+        term.clearLine()
         term.setCursorPos(1, 3)
         term.clearLine()
         abort.rollback[action](fsChange)
