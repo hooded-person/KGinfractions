@@ -1,5 +1,5 @@
 {
-    "version": 7,
+    "version": 8,
     "fileLocation": "https://raw.githubusercontent.com/hooded-person/KGinfractions/refs/heads/main/",
     "directories": [
         "completion",
@@ -18,7 +18,7 @@
         "database/tests.lua",
         "libs/loadPath.lua",
         "libs/selectionManager.lua",
-        "libs/spclib.lua",
+        "main/makePath.lua",
         "main/alphabet.lua",
         "main/bigF.lua",
         "main/getTemplate.lua",
@@ -31,6 +31,7 @@
         "startupScripts/runCompletionLoops.lua",
         "startupScripts/swordAutocompletion.lua",
         "userFacing/listTemplates.lua",
+        "userFacing/createTemplate.lua",
         "userFacing/selectMessage.lua",
         "userFacing/testing.lua",
         "userFacing/viewDatabase.lua"
@@ -88,5 +89,34 @@
                 "database/data.lon"
             ]
         }
-    }
+    },
+    "external": [
+        {
+            "name": "ShrekWord",
+            "required": true,
+            "thisDevice": true,
+            "installCmd": "wget https://github.com/ShrekshelleraiserCC/shrekword/releases/latest/download/sword.lua",
+            "projectPage": "https://pinestore.cc/projects/114/shrekword",
+            "github": "https://github.com/ShrekshelleraiserCC/shrekword/"
+        },
+        {
+            "name": "ShrekSprint client",
+            "required": true,
+            "thisDevice": true,
+            "installCmd":"wget https://raw.githubusercontent.com/ShrekshelleraiserCC/shrekword/refs/heads/main/libs/spclib.lua libs/spclib.lua",
+            "github": "https://github.com/ShrekshelleraiserCC/shrekword/"
+        },
+        {
+            "name": "ShrekPrint",
+            "required": true,
+            "thisDevice": false,
+            "instruction": {
+                "type": "website",
+                "url": "https://github.com/ShrekshelleraiserCC/shrekword/?tab=readme-ov-file#shrekprint-setup"
+            },
+            "installCmd": "wget https://github.com/ShrekshelleraiserCC/shrekword/releases/latest/download/sprint.lua",
+            "projectPage": "https://pinestore.cc/projects/115/shrekprint",
+            "github": "https://github.com/ShrekshelleraiserCC/shrekword/"
+        }
+    ]
 }

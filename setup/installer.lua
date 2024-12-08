@@ -1,4 +1,4 @@
--- v:2.2
+-- v:3
 term.setTextColor(colors.white)
 term.setBackgroundColor(colors.black)
 term.clear()
@@ -14,18 +14,16 @@ local fsChanges = {}
 
 -- aborting installation and rollback filesystem
 local abort = {rollback={}}
-abort.rollback.new = function ()
-    
+abort.rollback.new = function (fsChange)
+    fs.delete(fsChange.path)
 end
 
 local abortMeta
 abortMeta.__call = function () -- main abort function
-    for fsChange in ipairs(fsChanges) do 
-local function abort()
     for _, fsChange in ipairs(fsChanges) do 
         local action = fsChange.action
         local type = fsChange.type -- file or directory
-
+        abort.rollback[action](fsChange)
     end
 end
 setmetatable(abort,abortMeta)
@@ -35,13 +33,20 @@ setmetatable(abort,abortMeta)
 ---@param fileContent string Content of the new file
 ---@return boolean success Wether file was made successfully
 ---@return string? error Error if file was not made successfully
-local function newFile(filePath, fileContent)
+local function makeFile(filePath, fileContent)
     local h, err = fs.open(filePath, "w")
     table.insert(fsChanges, {action="new",type="file",path=filePath})
     if err then return false, err end
     h.write(fileContent)
     h.close()
     return true
+end
+---@param path string Path for which too make the file
+local function makeDir(path)
+    if not fs.exists(path) then 
+        fs.makeDir(path)
+        table.insert(fsChanges, {action="new",type="dir",path=path})
+    end
 end
 
 local function warn(err)
@@ -113,7 +118,7 @@ local function downloadFile(url, filePath, notify)
         warn(("The file '%s' already exists"):format(filePath))
         local input
         repeat
-            print("would you like to overwrite this file. y/n")
+            print("would you like to overwrite this file (THIS CAN NOT BE UNDONE). y/n")
             input = read()
         until input == "y" or input == "n"
         if input ~= "y" then
@@ -121,7 +126,7 @@ local function downloadFile(url, filePath, notify)
             abort() -- currently undefined, will also end the installer :/
         end
     end
-    newFile(filePath, body)
+    makeFile(filePath, body)
     term.setCursorPos(1,3)
     term.clearLine()
     print(("downloaded '%s'"):format(filePath))
@@ -162,7 +167,7 @@ settings.save()
 local function installItems(directories, files, fileSource)
     for _, directory in ipairs(directories) do
         local dirPath = settings.get("KGinfractions.root") .. directory
-        fs.makeDir(dirPath)
+        makeDir(dirPath)
     end
     for _, file in ipairs(files) do
         downloadFile(fileSource .. file, file, true)
@@ -173,3 +178,4 @@ end
 installItems(prgmFiles.directories, prgmFiles.files, prgmFiles.fileLocation)
 
 -- handle optional modules/templates
+abort()

@@ -1,7 +1,6 @@
 local path = require("../main/makePath.lua")
 
-local templateDir = "templates/"
-if templateDir:sub(-1) ~= "/" then templateDir = templateDir .. "/" end
+local templateDir = path("templates/")
 -- load and prepare templates
 settings.define("kgTF.typeColors", {
     description = "Which colors too use for template types",
@@ -54,7 +53,7 @@ end
 ---@return boolean available Wether the template does not exist in file system
 local function templateAvailable(templateType, templateName)
     local templateFileName = templateType .. templateName .. ".sdoc"
-    return fs.exists(path("templates/", templateFileName))
+    return fs.exists(templateDir .. templateFileName)
 end
 
 centerTxt("[template creator]", "=")
@@ -104,14 +103,14 @@ repeat -- template name
 until valid
 
 local templateFileName = templateType .. templateName .. ".sdoc"
-local templateFilePath = path("templates/", templateFileName)
+local templateFilePath = templateDir .. templateFileName
 
 local files = fs.list(path("templates"))
-local baseTemplates = {{},{}}
-for _,file in ipairs(files) do
-    file = file:sub(1,-6)
-    if file:sub(1,4) == "hide" then 
-        table.insert(baseTemplates[1],file)
+local baseTemplates = { {}, {} }
+for _, file in ipairs(files) do
+    file = file:sub(1, -6)
+    if file:sub(1, 4) == "hide" then
+        table.insert(baseTemplates[1], file)
         baseTemplates[2][file] = true
     end
 end
@@ -124,17 +123,20 @@ repeat -- template name
     local valid = true
     print("Select a base template or '' for none")
     selectedBaseTemplate = read(nil, nil, baseTemplatesCompFunc)
-    
+
     if not '' and not baseTemplates[2][selectedBaseTemplate] then
         valid = false
         print(("Please select one of the suggested templates or ''"))
     end
 
     if valid then -- confirm template name
-        print(selectedBaseTemplate ~= '' and 
-            (("base template: '%s', proceed? y/n"):format(selectedBaseTemplate)) 
+        print(selectedBaseTemplate ~= '' and
+            (("base template: '%s', proceed? y/n"):format(selectedBaseTemplate))
             or "no base template, proceed y/n")
         local proceed = read():lower()
         valid = proceed == "y" or proceed == "yes"
     end
 until valid
+
+fs.copy(templateDir .. selectedBaseTemplate .. ".sdoc", templateFilePath)
+shell.run("sword "..templateFilePath)
