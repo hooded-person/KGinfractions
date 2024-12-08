@@ -1,8 +1,8 @@
--- v:3.1
+-- v:3.2
 term.setTextColor(colors.white)
 term.setBackgroundColor(colors.black)
 term.clear()
-term.setCursorPos(1,1)
+term.setCursorPos(1, 1)
 
 local fileHost = "https://raw.githubusercontent.com/";
 local repoLoc = "hooded-person" .. "/" .. "KGinfractions";
@@ -13,20 +13,24 @@ local pgrmFilesURL = fileHost .. repoLoc .. inbeteenShit .. file;
 local fsChanges = {}
 
 -- aborting installation and rollback filesystem
-local abort = {rollback={}}
-abort.rollback.new = function (fsChange)
+local abort = { rollback = {} }
+abort.rollback.new = function(fsChange)
     fs.delete(fsChange.path)
+    print(("rolledback %s %s '%s'"):format(fsChange.action, fsChange.type, fsChange.path))
 end
 
 local abortMeta = {}
-abortMeta.__call = function () -- main abort function
-    for _, fsChange in ipairs(fsChanges) do 
+abortMeta.__call = function()  -- main abort function
+    term.setTextColor(colors.red)
+    print("ABORTING INSTALATION")
+    term.setTextColor(colors.orange)
+    for _, fsChange in ipairs(fsChanges) do
         local action = fsChange.action
         local type = fsChange.type -- file or directory
         abort.rollback[action](fsChange)
     end
 end
-setmetatable(abort,abortMeta)
+setmetatable(abort, abortMeta)
 
 
 ---@param filePath string Path of new file
@@ -35,7 +39,7 @@ setmetatable(abort,abortMeta)
 ---@return string? error Error if file was not made successfully
 local function makeFile(filePath, fileContent)
     local h, err = fs.open(filePath, "w")
-    table.insert(fsChanges, {action="new",type="file",path=filePath})
+    table.insert(fsChanges, { action = "new", type = "file", path = filePath })
     if err then return false, err end
     h.write(fileContent)
     h.close()
@@ -43,9 +47,9 @@ local function makeFile(filePath, fileContent)
 end
 ---@param path string Path for which too make the file
 local function makeDir(path)
-    if not fs.exists(path) then 
+    if not fs.exists(path) then
         fs.makeDir(path)
-        table.insert(fsChanges, {action="new",type="dir",path=path})
+        table.insert(fsChanges, { action = "new", type = "dir", path = path })
     end
 end
 
@@ -127,7 +131,7 @@ local function downloadFile(url, filePath, notify)
         end
     end
     makeFile(filePath, body)
-    term.setCursorPos(1,3)
+    term.setCursorPos(1, 3)
     term.clearLine()
     print(("downloaded '%s'"):format(filePath))
 end
