@@ -33,7 +33,7 @@ local function centerTxt(message, encasingStr)
 end
 
 local function checkValidType(str)
-    local validChars = "qwertyuiopasdfghjklzxcvbnm1234567890"
+    local validChars = "abcdefghijklmnopqrstuvwxyz0123456789"
     for i = 1, #str do
         if not validChars:find(str:sub(i, i), 1, true) then
             return false, str:sub(i, i)
