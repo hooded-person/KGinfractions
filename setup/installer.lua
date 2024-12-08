@@ -68,6 +68,7 @@ abortMeta.__call = function() -- main abort function
         term.clearLine()
         progressBar(i, #fsChanges, width-2)
     end
+    term.setCursorPos(1,5)
 end
 setmetatable(abort, abortMeta)
 
