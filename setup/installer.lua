@@ -1,6 +1,8 @@
+-- v:2.2
 term.setTextColor(colors.white)
 term.setBackgroundColor(colors.black)
 term.clear()
+term.setCursorPos(1,1)
 
 local fileHost = "https://raw.githubusercontent.com/";
 local repoLoc = "hooded-person" .. "/" .. "KGinfractions";
@@ -19,6 +21,8 @@ end
 local abortMeta
 abortMeta.__call = function () -- main abort function
     for fsChange in ipairs(fsChanges) do 
+local function abort()
+    for _, fsChange in ipairs(fsChanges) do 
         local action = fsChange.action
         local type = fsChange.type -- file or directory
 
@@ -33,7 +37,7 @@ setmetatable(abort,abortMeta)
 ---@return string? error Error if file was not made successfully
 local function newFile(filePath, fileContent)
     local h, err = fs.open(filePath, "w")
-    fsChanges:insert({action="new",type="file",path=filePath})
+    table.insert(fsChanges, {action="new",type="file",path=filePath})
     if err then return false, err end
     h.write(fileContent)
     h.close()
@@ -94,7 +98,8 @@ end
 
 ---@param url string The url from which to download the file
 ---@param filePath string The filepath too which to downlaod the file
-local function downloadFile(url, filePath)
+---@param notify boolean|nil Wether too print what is happenening (lot of downloads after each other otherwise looks wierd)
+local function downloadFile(url, filePath, notify)
     local success, responseData = getUrl(url)
     local headers = responseData.headers
     local body = responseData.body
@@ -117,6 +122,9 @@ local function downloadFile(url, filePath)
         end
     end
     newFile(filePath, body)
+    term.setCursorPos(1,3)
+    term.clearLine()
+    print(("downloaded '%s'"):format(filePath))
 end
 
 local prgmFiles = getJsonData(pgrmFilesURL)
@@ -152,12 +160,12 @@ settings.save()
 ---@param files table
 ---@param fileSource string Start of the url to which requested files will be appended (for getting from github: 'https://raw.githubusercontent.com/USER/REPO//refs/heads/BRANCH/')
 local function installItems(directories, files, fileSource)
-    for directory in ipairs(directories) do
+    for _, directory in ipairs(directories) do
         local dirPath = settings.get("KGinfractions.root") .. directory
         fs.makeDir(dirPath)
     end
-    for file in ipairs(files) do
-        downloadFile(fileSource .. file, file)
+    for _, file in ipairs(files) do
+        downloadFile(fileSource .. file, file, true)
     end
 end
 

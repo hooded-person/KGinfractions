@@ -337,7 +337,8 @@ local function restoreBackToMain(button, indexList)
     return buttonMenu
 end
 
-local function captureInputForDB(items, indexToUUID, sort, scroll, uuids, barButtons, selection, expandedUUID, expandedFormatData)
+local function captureInputForDB(items, indexToUUID, sort, scroll, uuids, barButtons, selection, expandedUUID,
+                                 expandedFormatData)
     local width, height = term.getSize()
     local results = { os.pullEvent() }
     if query.enabled then
@@ -511,7 +512,31 @@ local function getBarButtons(selection)
     barButtons = {
         {
             label = "New",
-            click = function() shell.run("/userFacing/selectMessage") end,
+            type = "menu",
+            submenu = { {
+                label = "Issue",
+                click = function()
+                    local func, err = loadfile("/userFacing/selectMessage.lua")
+                    if err then
+                        error(err)
+                    elseif func == nil then
+                        error("function from file '/userFacing/selectMessage.lua' is nil but no error was given")
+                    end
+                    func()
+                end,
+            },{
+                label = "Template",
+                click = function()
+                    local func, err = loadfile("/userFacing/createTemplate.lua")
+                    if err then
+                        error(err)
+                    elseif func == nil then
+                        error("function from file '/userFacing/createTemplate.lua' is nil but no error was given")
+                    end
+                    func()
+                end,
+            },
+            },
         },
         {
             label = "View",

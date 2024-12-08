@@ -73,6 +73,11 @@ return function(template, formatData, source, printOnly)
         print((printOnly and "database processing disabled" or "database processing failed")..", printing without db entry")
         term.setTextColor(colors.white)
     end
+    if not result.webhook[1] then 
+        term.setTextColor(colors.orange)
+        print("Webhook message failed: "..result.webhook[2].cause)
+        term.setTextColor(colors.white)
+    end
 
     term.setTextColor(colors.gray)
     print("reference: " .. tostring(result.reference))
