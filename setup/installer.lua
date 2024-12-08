@@ -1,4 +1,4 @@
--- v:3.2
+-- v:4
 term.setTextColor(colors.white)
 term.setBackgroundColor(colors.black)
 term.clear()
@@ -12,22 +12,61 @@ local pgrmFilesURL = fileHost .. repoLoc .. inbeteenShit .. file;
 
 local fsChanges = {}
 
+local function progressBar(amount, max, barWidth)
+    local fillPercentage = amount / max
+    local w, h = term.getSize()
+    local x, y = term.getCursorPos()
+    barWidth = barWidth or w - x
+    local bars = barWidth * 2
+    local filledBars = fillPercentage * bars
+
+    term.setTextColor(colors.gray)
+    term.setBackgroundColor(colors.white)
+    write((" "):rep(filledBars / 2))
+
+    term.setTextColor(colors.white)
+    term.setBackgroundColor(colors.gray)
+    write(filledBars % 2 == 1 and "\x95" or "")
+
+    term.setTextColor(colors.white)
+    term.setBackgroundColor(colors.gray)
+    write((" "):rep(filledBars / 2 - (filledBars % 2)))
+
+    term.setTextColor(colors.white)
+    term.setBackgroundColor(colors.black)
+end
+
 -- aborting installation and rollback filesystem
 local abort = { rollback = {} }
 abort.rollback.new = function(fsChange)
     fs.delete(fsChange.path)
     print(("rolledback %s %s '%s'"):format(fsChange.action, fsChange.type, fsChange.path))
 end
+abort.rollback.move = function(fsChange)
+    fs.move(fsChange.to, fsChange.from) -- was moved "fsChange.from" to "fsChange.to", now reversing that action
+end
 
 local abortMeta = {}
-abortMeta.__call = function()  -- main abort function
+abortMeta.__call = function() -- main abort function
     term.setTextColor(colors.red)
+    term.setBackgroundColor(colors.black)
+    term.clear()
+    term.setCursorPos(1, 1)
     print("ABORTING INSTALATION")
+    local width, height = term.getSize()
+    term.setCursorPos(2, 2)
+    term.clearLine()
+    progressBar(0, #fsChanges, width-2)
     term.setTextColor(colors.orange)
-    for _, fsChange in ipairs(fsChanges) do
+    for i, fsChange in ipairs(fsChanges) do
         local action = fsChange.action
         local type = fsChange.type -- file or directory
+        term.setCursorPos(1, 3)
+        term.clearLine()
         abort.rollback[action](fsChange)
+        term.setCursorPos(2, 2)
+        term.clearLine()
+        progressBar(i, #fsChanges, width-2)
     end
 end
 setmetatable(abort, abortMeta)
