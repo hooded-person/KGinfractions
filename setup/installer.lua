@@ -1,4 +1,4 @@
--- v:4
+-- v:4.1
 term.setTextColor(colors.white)
 term.setBackgroundColor(colors.black)
 term.clear()
