@@ -11,12 +11,22 @@ local pgrmFilesURL = fileHost .. repoLoc .. inbeteenShit .. file;
 local fsChanges = {}
 
 -- aborting installation and rollback filesystem
-local function abort()
+local abort = {rollback={}}
+abort.rollback.new = function ()
+    
+end
+
+local abortMeta
+abortMeta.__call = function () -- main abort function
     for fsChange in ipairs(fsChanges) do 
         local action = fsChange.action
         local type = fsChange.type -- file or directory
+
     end
 end
+setmetatable(abort,abortMeta)
+
+
 ---@param filePath string Path of new file
 ---@param fileContent string Content of the new file
 ---@return boolean success Wether file was made successfully
