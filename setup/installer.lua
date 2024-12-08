@@ -18,7 +18,7 @@ abort.rollback.new = function (fsChange)
     fs.delete(fsChange.path)
 end
 
-local abortMeta
+local abortMeta = {}
 abortMeta.__call = function () -- main abort function
     for _, fsChange in ipairs(fsChanges) do 
         local action = fsChange.action
