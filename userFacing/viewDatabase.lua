@@ -516,7 +516,7 @@ local function getBarButtons(selection)
             submenu = { {
                 label = "Issue",
                 click = function()
-                    local func, err = loadfile("/userFacing/selectMessage.lua")
+                    local func, err = loadfile("/userFacing/selectMessage.lua", nil, _ENV)
                     if err then
                         error(err)
                     elseif func == nil then
@@ -527,7 +527,7 @@ local function getBarButtons(selection)
             },{
                 label = "Template",
                 click = function()
-                    local func, err = loadfile("/userFacing/createTemplate.lua")
+                    local func, err = loadfile("/userFacing/createTemplate.lua", nil, _ENV)
                     if err then
                         error(err)
                     elseif func == nil then

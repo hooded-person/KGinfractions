@@ -1,4 +1,4 @@
--- v:4.1
+-- v:4.2
 term.setTextColor(colors.white)
 term.setBackgroundColor(colors.black)
 term.clear()
@@ -30,7 +30,7 @@ local function progressBar(amount, max, barWidth)
 
     term.setTextColor(colors.white)
     term.setBackgroundColor(colors.gray)
-    write((" "):rep(((bars-filledBars) / 2) - (filledBars % 2)))
+    write((" "):rep(((bars - filledBars) / 2) - (filledBars % 2)))
 
     term.setTextColor(colors.white)
     term.setBackgroundColor(colors.black)
@@ -56,7 +56,7 @@ abortMeta.__call = function() -- main abort function
     local width, height = term.getSize()
     term.setCursorPos(2, 2)
     term.clearLine()
-    progressBar(0, #fsChanges, width-2)
+    progressBar(0, #fsChanges, width - 2)
     term.setTextColor(colors.orange)
     for i, fsChange in ipairs(fsChanges) do
         local action = fsChange.action
@@ -68,9 +68,9 @@ abortMeta.__call = function() -- main abort function
         abort.rollback[action](fsChange)
         term.setCursorPos(2, 2)
         term.clearLine()
-        progressBar(i, #fsChanges, width-2)
+        progressBar(i, #fsChanges, width - 2)
     end
-    term.setCursorPos(1,5)
+    term.setCursorPos(1, 5)
 end
 setmetatable(abort, abortMeta)
 
@@ -223,5 +223,44 @@ end
 -- always install
 installItems(prgmFiles.directories, prgmFiles.files, prgmFiles.fileLocation)
 
+-- handle external items
+
+---@param external table All info about the external program
+local function installExternal(external)
+    term.setTextColor(colors.white)
+    term.setBackgroundColor(colors.black)
+    term.setCursorPos(1, 1)
+    term.clear()
+
+    local author
+    if type(external.author == "string") then
+        author = { name = external.author }
+    elseif type(external.author == "table") then
+        author = external.author
+    else
+        author = { name = "Unkown" }
+    end
+    author.socials = author.socials or {}
+
+    print(external.name .. " by "..author.name)
+    term.setTextColor(colors.gray)
+    local w,h = term.getSize()
+    for k, v in pairs(author.socials) do 
+        local x, y = term.getCursorPos()
+        local socialMsg = (x==1 and "" or " | ")..k..": "..v
+        if x + #socialMsg <= w then
+        write(socialMsg)
+        end
+    end
+end
+
+local externals = prgmFiles.external
+for _, external in ipairs(externals) do
+    installExternal(external)
+end
+
+
 -- handle optional modules/templates
+
+
 abort()

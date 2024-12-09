@@ -93,6 +93,12 @@
     "external": [
         {
             "name": "ShrekWord",
+            "author": {
+                "name": "Mason Gulu",
+                "socials": {
+                    "dc": "shrekshellraiser"
+                }
+            },
             "required": true,
             "thisDevice": true,
             "installCmd": "wget https://github.com/ShrekshelleraiserCC/shrekword/releases/latest/download/sword.lua",
@@ -101,13 +107,25 @@
         },
         {
             "name": "ShrekSprint client",
+            "author": {
+                "name": "Mason Gulu",
+                "socials": {
+                    "dc": "shrekshellraiser"
+                }
+            },
             "required": true,
             "thisDevice": true,
-            "installCmd":"wget https://raw.githubusercontent.com/ShrekshelleraiserCC/shrekword/refs/heads/main/libs/spclib.lua libs/spclib.lua",
+            "installCmd": "wget https://raw.githubusercontent.com/ShrekshelleraiserCC/shrekword/refs/heads/main/libs/spclib.lua libs/spclib.lua",
             "github": "https://github.com/ShrekshelleraiserCC/shrekword/"
         },
         {
             "name": "ShrekPrint",
+            "author": {
+                "name": "Mason Gulu",
+                "socials": {
+                    "dc": "shrekshellraiser"
+                }
+            },
             "required": true,
             "thisDevice": false,
             "instruction": {

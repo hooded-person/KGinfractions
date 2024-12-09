@@ -1,5 +1,5 @@
 local spclib = require("/libs/spclib")
-local printerHost = 15
+local printerHost = 3
 
 local templateDir = "templates/"
 if templateDir:sub(-1) ~= "/" then templateDir = templateDir .. "/" end
@@ -73,17 +73,18 @@ return function(template, formatData, source, printOnly)
         print((printOnly and "database processing disabled" or "database processing failed")..", printing without db entry")
         term.setTextColor(colors.white)
     end
-    if not result.webhook[1] then 
+    if result and not result.webhook[1] then 
         term.setTextColor(colors.orange)
         print("Webhook message failed: "..result.webhook[2].cause)
         term.setTextColor(colors.white)
     end
+    result = result or {}
 
     term.setTextColor(colors.gray)
     print("reference: " .. tostring(result.reference))
     term.setTextColor(colors.white)
 
-    rednet.open("back")
+    rednet.open("right")
     spclib.printDocument(printerHost, toPrint, amount, false)
 
 
