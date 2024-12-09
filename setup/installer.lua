@@ -226,22 +226,23 @@ installItems(prgmFiles.directories, prgmFiles.files, prgmFiles.fileLocation)
 -- handle external items
 
 ---@param external table All info about the external program
+---@param external table All info about the external program
 local function installExternal(external)
     term.setTextColor(colors.white)
     term.setBackgroundColor(colors.black)
     term.setCursorPos(1, 1)
     term.clear()
-
+ 
     local author
-    if type(external.author == "string") then
+    if type(external.author) == "string" then
         author = { name = external.author }
-    elseif type(external.author == "table") then
+    elseif type(external.author) == "table" then
         author = external.author
     else
         author = { name = "Unkown" }
     end
     author.socials = author.socials or {}
-
+ 
     -- external info and author credits
     print(external.name .. " by " .. author.name)
     term.setTextColor(colors.gray)
@@ -253,8 +254,11 @@ local function installExternal(external)
             write(socialMsg)
         end
     end
+    print("")
+    term.setTextColor(colors.white)
+    term.setBackgroundColor(colors.black)
     if external.projectPage then
-        local projectPageName = external.projectPage:sub("^https?://", "")
+        local projectPageName = external.projectPage:gsub("^https?://", "")
         projectPageName = projectPageName:match("%w*.%w*")
         print(("view on %s: %s"):format(projectPageName, external.projectPage))
     end
@@ -270,15 +274,24 @@ local function installExternal(external)
     end
     print("Would you like too install this external application?")
     local x, y = term.getCursorPos()
-    local buttonWidth = 7 + 2 -- padding
-    local spaceAround = (w - buttonWidth) / 3
-    paintutils.drawFilledBox(spaceAround, y + 1, spaceAround + buttonWidth, y + 3, colors.gray)
-    paintutils.drawFilledBox(2 * spaceAround + buttonWidth, y + 1, spaceAround + buttonWidth, y + 3, colors.gray)
-    term.setCursorPos(spaceAround + 1, y + 2)
+    local padding = 2
+    local buttonWidth = 7 + 2*padding
+    local spaceAround = (w - buttonWidth*2) / 3
+    
+    local button1 = {
+        {spaceAround, y+1},{spaceAround+buttonWidth, y+3}
+    }
+    paintutils.drawFilledBox(button1[1][1], button1[1][2], button1[2][1], button1[2][2], colors.gray)
+    term.setCursorPos(spaceAround + padding, y + 2)
     write(buttonSkip)
-    term.setCursorPos(2*spaceAround + buttonWidth + 1, y + 2)
+    
+    paintutils.drawFilledBox(2 * spaceAround + buttonWidth, y + 1, 2*spaceAround + 2*buttonWidth, y + 3, colors.gray)
+    term.setCursorPos(2*spaceAround + buttonWidth + padding, y + 2)
     write(buttonInstall)
+    
+    term.setCursorPos(1, y+4)
 end
+
 
 local externals = prgmFiles.external
 for _, external in ipairs(externals) do
