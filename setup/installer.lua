@@ -260,10 +260,12 @@ local function installExternal(external)
     if external.projectPage then
         local projectPageName = external.projectPage:gsub("^https?://", "")
         projectPageName = projectPageName:match("%w*.%w*")
-        print(("view on %s: %s"):format(projectPageName, external.projectPage))
+        local projectPageSub = external.projectPage:gsub("^https?://%w.%w/", "")
+        print(("view on %s: %s"):format(projectPageName, projectPageSub))
     end
     if external.github then
-        print("view on github: " .. external.github)
+        local githubRepo = external.github:gsub("^https?://github.com/", "")
+        print("view on github: " .. githubRepo)
     end
     -- actual installation
     local buttonSkip = " Skip  "
@@ -277,18 +279,21 @@ local function installExternal(external)
     local padding = 2
     local buttonWidth = 7 + 2*padding
     local spaceAround = (w - buttonWidth*2) / 3
-    
-    local button1 = {
-        {spaceAround, y+1},{spaceAround+buttonWidth, y+3}
-    }
-    paintutils.drawFilledBox(button1[1][1], button1[1][2], button1[2][1], button1[2][2], colors.gray)
+
+    paintutils.drawFilledBox(spaceAround, y+1,
+        spaceAround+buttonWidth -1, y+3,
+        colors.gray
+    )
     term.setCursorPos(spaceAround + padding, y + 2)
     write(buttonSkip)
-    
-    paintutils.drawFilledBox(2 * spaceAround + buttonWidth, y + 1, 2*spaceAround + 2*buttonWidth, y + 3, colors.gray)
+
+    paintutils.drawFilledBox(2 * spaceAround + buttonWidth, y + 1,
+        2*spaceAround + 2*buttonWidth-1, y + 3,
+        colors.gray
+    )
     term.setCursorPos(2*spaceAround + buttonWidth + padding, y + 2)
     write(buttonInstall)
-    
+
     term.setCursorPos(1, y+4)
 end
 
@@ -302,4 +307,4 @@ end
 -- handle optional modules/templates
 
 
-abort()
+-- abort()
