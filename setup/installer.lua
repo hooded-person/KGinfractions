@@ -1,4 +1,4 @@
--- v:4.2
+-- v:5
 term.setTextColor(colors.white)
 term.setBackgroundColor(colors.black)
 term.clear()
@@ -242,16 +242,42 @@ local function installExternal(external)
     end
     author.socials = author.socials or {}
 
-    print(external.name .. " by "..author.name)
+    -- external info and author credits
+    print(external.name .. " by " .. author.name)
     term.setTextColor(colors.gray)
-    local w,h = term.getSize()
-    for k, v in pairs(author.socials) do 
+    local w, h = term.getSize()
+    for k, v in pairs(author.socials) do
         local x, y = term.getCursorPos()
-        local socialMsg = (x==1 and "" or " | ")..k..": "..v
+        local socialMsg = (x == 1 and "" or " | ") .. k .. ": " .. v
         if x + #socialMsg <= w then
-        write(socialMsg)
+            write(socialMsg)
         end
     end
+    if external.projectPage then
+        local projectPageName = external.projectPage:sub("^https?://", "")
+        projectPageName = projectPageName:match("%w*.%w*")
+        print(("view on %s: %s"):format(projectPageName, external.projectPage))
+    end
+    if external.github then
+        print("view on github: " .. external.github)
+    end
+    -- actual installation
+    local buttonSkip = " Skip  "
+    local buttonInstall = "Install"
+    if external.required then
+        print("this external application is required")
+        buttonSkip = "Cancel "
+    end
+    print("Would you like too install this external application?")
+    local x, y = term.getCursorPos()
+    local buttonWidth = 7 + 2 -- padding
+    local spaceAround = (w - buttonWidth) / 3
+    paintutils.drawFilledBox(spaceAround, y + 1, spaceAround + buttonWidth, y + 3, colors.gray)
+    paintutils.drawFilledBox(2 * spaceAround + buttonWidth, y + 1, spaceAround + buttonWidth, y + 3, colors.gray)
+    term.setCursorPos(spaceAround + 1, y + 2)
+    write(buttonSkip)
+    term.setCursorPos(2*spaceAround + buttonWidth + 1, y + 2)
+    write(buttonInstall)
 end
 
 local externals = prgmFiles.external
