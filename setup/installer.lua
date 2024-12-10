@@ -257,10 +257,7 @@ local function installExternal(external)
     term.setTextColor(colors.white)
     term.setBackgroundColor(colors.black)
     if external.projectPage then
-        local projectPageName = external.projectPage:gsub("^https?://", "")
-        projectPageName = projectPageName:match("%w*.%w*")
-        local projectPageSub = external.projectPage:gsub("^https?://%w.%w/", "")
-        print(("view on %s: %s"):format(projectPageName, projectPageSub))
+        print(("view on %s"):format(external.projectPage:gsub("^https?://","")))
     end
     if external.github then
         local githubRepo = external.github:gsub("^https?://github.com/", "")
@@ -270,7 +267,11 @@ local function installExternal(external)
     local buttonSkip = " Skip  "
     local buttonInstall = "Install"
     if external.required then
-        print("this external application is required")
+        term.setTextColor(colors.lightGray)
+        write("This external application is required")
+        term.setTextColor(colors.red)
+        print("*")
+        term.setTextColor(colors.white)
         buttonSkip = "Cancel "
     end
     print("Would you like too install this external application?")
@@ -330,7 +331,7 @@ local function installExternal(external)
             end
         elseif buttonInstall.click(x,y) then
             print("installing external")
-            shell.run(external.installCmd)
+            shell.run(external.installCmd:gsub("__ROOT__", settings.get("KGinfractions.root")))
         else 
             success = false
         end

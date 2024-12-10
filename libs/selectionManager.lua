@@ -123,7 +123,7 @@ function Selection:getDragX(amount)
 end
 
 ---@param amount any The amount of y values too return
----@return number Y values of drag
+---@return number Y Y values of drag
 function Selection:getDragY(amount)
     if not amount then amount = 1 end
     local dragYs = {}
