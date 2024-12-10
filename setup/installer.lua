@@ -226,7 +226,6 @@ installItems(prgmFiles.directories, prgmFiles.files, prgmFiles.fileLocation)
 -- handle external items
 
 ---@param external table All info about the external program
----@param external table All info about the external program
 local function installExternal(external)
     term.setTextColor(colors.white)
     term.setBackgroundColor(colors.black)
@@ -280,21 +279,62 @@ local function installExternal(external)
     local buttonWidth = 7 + 2*padding
     local spaceAround = (w - buttonWidth*2) / 3
 
-    paintutils.drawFilledBox(spaceAround, y+1,
-        spaceAround+buttonWidth -1, y+3,
-        colors.gray
-    )
-    term.setCursorPos(spaceAround + padding, y + 2)
-    write(buttonSkip)
+    ---@param corners table A list containing 2 lists containing the x and y of each point {{x,y},{x,y}}
+    ---@param label string The text for on the button
+    ---@param padding number Padding around the text
+    ---@param color number Background color of the button
+    local function button(corners,label,padding, color)
+        padding = padding or 0
+        paintutils.drawFilledBox(corners[1][1],corners[1][2],
+            corners[2][1], corners[2][2], color
+        )
+        local txtY = corners[1][2]+((corners[2][2]-corners[1][2])/2)
+        term.setCursorPos(corners[1][1] + padding, txtY)
+        write(label)
+        return {click = function(x, y)
+                return x >= corners[1][1] and x <= corners[2][1] and y >= corners[1][2] and y <= corners[2][2]
+            end,
+            label = label
+        }
+    end
+    local buttonSkipCorners = {{spaceAround, y+1},{spaceAround+buttonWidth -1,y+3}}
+    local buttonSkip = button(buttonSkipCorners, buttonSkip, padding, colors.gray)
 
-    paintutils.drawFilledBox(2 * spaceAround + buttonWidth, y + 1,
-        2*spaceAround + 2*buttonWidth-1, y + 3,
-        colors.gray
-    )
-    term.setCursorPos(2*spaceAround + buttonWidth + padding, y + 2)
-    write(buttonInstall)
+    local buttonInstallCorners = {{2 * spaceAround + buttonWidth, y + 1},{2*spaceAround + 2*buttonWidth-1, y + 3}}
+    local buttonInstall = button(buttonInstallCorners, buttonInstall, padding, colors.gray)
 
     term.setCursorPos(1, y+4)
+
+    repeat
+        local success = true
+        local event, x, y, mouse = os.pullEvent("mouse_click")
+        if buttonSkip.click(x,y) then
+            print("skipped installing external")
+            if external.required then 
+                term.setTextColor(colors.orange)
+                term.setBackgroundColor(colors.black)
+                term.setCursorPos(1,1)
+                term.clear()
+                print("This external application is required\nNot installing this external application will abort the installation.")
+                repeat
+                    print("abort the installation? y/n")
+                    local input = read()
+                    local valid = false
+                    if input == "y" then
+                        abort()
+                    elseif input == "n" then 
+                        valid = true
+                        success = false
+                    end
+                until valid
+            end
+        elseif buttonInstall.click(x,y) then
+            print("installing external")
+            shell.run(external.installCmd)
+        else 
+            success = false
+        end
+    until success
 end
 
 
