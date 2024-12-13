@@ -223,6 +223,152 @@ end
 -- always install
 installItems(prgmFiles.directories, prgmFiles.files, prgmFiles.fileLocation)
 
+-- install prompt
+local types = {
+    external = {
+        name = "external application",
+        hasAuthor = true,
+        hasSocials = true,
+        install = function (data)
+            shell.run(data.installCmd:gsub("__ROOT__", settings.get("KGinfractions.root")))
+        end
+    },
+    module = {
+        name = "module",
+        hasAuthor = false,
+        hasSocials = false,
+        install = function (data)
+            installItems(data.dirs, data.files, (data.fileLocation or prgmFiles.fileLocation))
+        end
+    }
+}
+local function promptInstall(data, dataType)
+    term.setTextColor(colors.white)
+    term.setBackgroundColor(colors.black)
+    term.setCursorPos(1, 1)
+    term.clear()
+
+    if type(dataType) == "string" then
+        dataType = types[dataType]
+    elseif type(dataType) == "table" and type(dataType[1]) == "string" then 
+        dataType = types[dataType[1]]
+    end
+    assert(type(dataType)=="table","unsuported data type")
+
+    local author
+    if type(data.author) == "string" then
+        author = { name = data.author }
+    elseif type(data.author) == "table" then
+        author = data.author
+    else
+        author = { name = "Unkown" }
+    end
+    -- display author name enabled
+    if dataType.hasAuthor then
+        print(data.name .. " by " .. author.name)
+    else
+        print(data.name)
+    end
+    -- display author socials
+    if dataType.hasSocials then
+        author.socials = author.socials or {}
+        term.setTextColor(colors.gray)
+        local w, h = term.getSize()
+        for k, v in pairs(author.socials) do
+            local x, y = term.getCursorPos()
+            local socialMsg = (x == 1 and "" or " | ") .. k .. ": " .. v
+            if x + #socialMsg <= w then
+                write(socialMsg)
+            end
+        end
+        print("")
+        term.setTextColor(colors.white)
+    end
+    -- sources
+    if data.projectPage then
+        print(("view on %s"):format(data.projectPage:gsub("^https?://","")))
+    end
+    if data.github then
+        local githubRepo = data.github:gsub("^https?://github.com/", "")
+        print("view on github: " .. githubRepo)
+    end
+
+    -- actual installation
+    local buttonSkip = " Skip  "
+    local buttonInstall = "Install"
+    if data.required then
+        term.setTextColor(colors.lightGray)
+        write("This external application is required")
+        term.setTextColor(colors.red)
+        print("*")
+        term.setTextColor(colors.white)
+        buttonSkip = "Cancel "
+    end
+    print("Would you like too install this "..dataType.name.."?")
+    local w, h = term.getSize()
+    local x, y = term.getCursorPos()
+    local padding = 2
+    local buttonWidth = 7 + 2*padding
+    local spaceAround = (w - buttonWidth*2) / 3
+
+    ---@param corners table A list containing 2 lists containing the x and y of each point {{x,y},{x,y}}
+    ---@param label string The text for on the button
+    ---@param padding number Padding around the text
+    ---@param color number Background color of the button
+    local function button(corners,label,padding, color)
+        padding = padding or 0
+        paintutils.drawFilledBox(corners[1][1],corners[1][2],
+            corners[2][1], corners[2][2], color
+        )
+        local txtY = corners[1][2]+((corners[2][2]-corners[1][2])/2)
+        term.setCursorPos(corners[1][1] + padding, txtY)
+        write(label)
+        return {click = function(x, y)
+                return x >= corners[1][1] and x <= corners[2][1] and y >= corners[1][2] and y <= corners[2][2]
+            end,
+            label = label
+        }
+    end
+    local buttonSkipCorners = {{spaceAround, y+1},{spaceAround+buttonWidth -1,y+3}}
+    local buttonSkip = button(buttonSkipCorners, buttonSkip, padding, colors.gray)
+
+    local buttonInstallCorners = {{2 * spaceAround + buttonWidth, y + 1},{2*spaceAround + 2*buttonWidth-1, y + 3}}
+    local buttonInstall = button(buttonInstallCorners, buttonInstall, padding, colors.gray)
+
+    term.setCursorPos(1, y+4)
+
+    repeat
+        local success = true
+        local event, x, y, mouse = os.pullEvent("mouse_click")
+        if buttonSkip.click(x,y) then
+            print("skipped installing "..dataType.name)
+            if data.required then 
+                term.setTextColor(colors.orange)
+                term.setBackgroundColor(colors.black)
+                term.setCursorPos(1,1)
+                term.clear()
+                print("This "..dataType.name.." is required\nNot installing this "..dataType.name.." will abort the installation.")
+                repeat
+                    print("abort the installation? y/n")
+                    local input = read()
+                    local valid = false
+                    if input == "y" then
+                        abort()
+                    elseif input == "n" then 
+                        valid = true
+                        success = false
+                    end
+                until valid
+            end
+        elseif buttonInstall.click(x,y) then
+            print("installing "..dataType.name)
+            dataType.install(data)
+        else 
+            success = false
+        end
+    until success
+end
+
 -- handle external items
 
 ---@param external table All info about the external program
@@ -256,6 +402,7 @@ local function installExternal(external)
     print("")
     term.setTextColor(colors.white)
     term.setBackgroundColor(colors.black)
+    -- sources
     if external.projectPage then
         print(("view on %s"):format(external.projectPage:gsub("^https?://","")))
     end
@@ -341,11 +488,15 @@ end
 
 local externals = prgmFiles.external
 for _, external in ipairs(externals) do
-    installExternal(external)
+    promptInstall(external, "external")
+    --installExternal(external)
 end
 
 
--- handle optional modules/templates
+--[[ handle optional modules/templates
+local modules = prgmFiles.modules
+for id, moduleData in pairs(modules) do 
 
+end--]]
 
 -- abort()
