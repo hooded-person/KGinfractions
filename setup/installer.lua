@@ -1,4 +1,4 @@
--- v:6
+-- v:6.1
 term.setTextColor(colors.white)
 term.setBackgroundColor(colors.black)
 term.clear()
@@ -340,6 +340,7 @@ local function promptInstall(data, dataType)
     repeat
         local success = true
         local event, x, y, mouse = os.pullEvent("mouse_click")
+        print("mouse click at ", x, y)
         if buttonSkip.click(x,y) then
             print("skipped installing "..dataType.name)
             if data.required then 
