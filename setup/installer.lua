@@ -123,12 +123,15 @@ local function getUrl(url)
     if err or response == nil then
         response = failResponse;
     end;
+    if response == nil then
+        error(err)
+    end
     local statusCode = response.getResponseCode();
     local headers = response.getResponseHeaders();
     local body = response.readAll();
     response.close();
     if err then -- show http errors (will be double up with github, ex. "HTTP 404\n 404: not found")
-        local errMsg = "HTTP " .. statusCode .. " " .. url .. "\n" .. body;
+        local errMsg = err .. "\nHTTP " .. statusCode .. " " .. url .. "\n" .. body;
         error(errMsg);
     end;
     return not err, {
@@ -162,7 +165,7 @@ end
 
 ---@param url string The url from which to download the file
 ---@param filePath string The filepath to which to downlaod the file
----@param notify boolean|nil Wether to print what is happenening (lot of downloads after each other otherwise looks wierd)
+---@param notify? boolean Wether to print what is happenening (lot of downloads after each other otherwise looks wierd)
 local function downloadFile(url, filePath, notify)
     local success, responseData = getUrl(url)
     local headers = responseData.headers
@@ -184,7 +187,9 @@ local function downloadFile(url, filePath, notify)
     makeFile(filePath, body)
     term.setCursorPos(1, 3)
     term.clearLine()
-    print(("downloaded '%s'"):format(filePath))
+    if notify then
+        print(("downloaded '%s'"):format(filePath))
+    end
 end
 
 local prgmFiles = getJsonData(pgrmFilesURL)
@@ -239,6 +244,7 @@ local types = {
         hasAuthor = true,
         hasSocials = true,
         hasDescription = false,
+        alwaysThisDevice = false,
         install = function(data)
             shell.run(data.installCmd:gsub("__ROOT__", settings.get("KGinfractions.root")))
         end
@@ -248,6 +254,7 @@ local types = {
         hasAuthor = false,
         hasSocials = false,
         hasDescription = true,
+        alwaysThisDevice = true,
         install = function(data)
             installItems(data.dirs, data.files, (data.fileLocation or prgmFiles.fileLocation))
         end
@@ -311,22 +318,31 @@ local function renderPromptInstall(data, dataType)
 
     -- Drawing the buttonSkip
     dataType.labels = dataType.labels or { " Skip  ", "Install" }
-    local buttonSkip = dataType.labels[1]
-    local buttonInstall = dataType.labels[2]
+    local buttonSkipLabel = dataType.labels[1]
+    local buttonInstallLabel = dataType.labels[2]
+    local buttonDoneLabel = "  Done  "
     if data.required then
         term.setTextColor(colors.lightGray)
         write("This external application is required")
         term.setTextColor(colors.red)
         print("*")
         term.setTextColor(colors.white)
-        buttonSkip = "Cancel "
+        buttonSkipLabel = "Cancel "
     end
-    print("Would you like to install this " .. dataType.name .. "?")
+    if data.thisDevice or dataType.alwaysThisDevice then
+        print("Would you like to install this " .. dataType.name .. "?")
+    else 
+        local instructions = data.instruction
+        local instructionText = (instructions.type == "website" and " at:\n"..instructions.url) or (instructions.type == "text" and ":\n"..instructions.description)
+        print("This "..dataType.name.." has to be installed on a diferent device, please follow the install instructions"..instructionText)
+    end
     local w, h = term.getSize()
     local x, y = term.getCursorPos()
     local padding = 2
     local buttonWidth = 7 + 2 * padding
     local spaceAround = (w - buttonWidth * 2) / 3
+    local buttonDoneWidth = 8 + 2 * padding
+    local spaceAroundButtonDone = (w - buttonDoneWidth) / 2
 
     ---@param corners table A list containing 2 lists containing the x and y of each point {{x,y},{x,y}}
     ---@param label string The text for on the button
@@ -351,14 +367,22 @@ local function renderPromptInstall(data, dataType)
         tButton.draw()
         return tButton
     end
-    local buttonSkipCorners = { { spaceAround, y + 1 }, { spaceAround + buttonWidth - 1, y + 3 } }
-    local buttonSkip = button(buttonSkipCorners, buttonSkip, padding, colors.gray)
+    local buttonSkip
+    local buttonInstall
+    local buttonDone
+    if data.thisDevice or dataType.alwaysThisDevice then
+        local buttonSkipCorners = { { spaceAround, y + 1 }, { spaceAround + buttonWidth - 1, y + 3 } }
+        buttonSkip = button(buttonSkipCorners, buttonSkipLabel, padding, colors.gray)
 
-    local buttonInstallCorners = { { 2 * spaceAround + buttonWidth, y + 1 }, { 2 * spaceAround + 2 * buttonWidth - 1, y + 3 } }
-    local buttonInstall = button(buttonInstallCorners, buttonInstall, padding, colors.gray)
+        local buttonInstallCorners = { { 2 * spaceAround + buttonWidth, y + 1 }, { 2 * spaceAround + 2 * buttonWidth - 1, y + 3 } }
+        buttonInstall = button(buttonInstallCorners, buttonInstallLabel, padding, colors.gray)
+    else
+        local buttonDoneCorners = { { spaceAroundButtonDone, y + 1 }, { spaceAroundButtonDone + buttonDoneWidth - 1, y + 3 } }
+        buttonDone = button(buttonDoneCorners, buttonDoneLabel, padding, colors.gray)
+    end
 
     term.setCursorPos(1, y + 4)
-    return buttonSkip, buttonInstall
+    return buttonSkip, buttonInstall, buttonDone
 end
 
 ---@param data table The data about the thing that is being prompted to be installed
@@ -371,15 +395,16 @@ local function promptInstall(data, dataType)
     end
     assert(type(dataType) == "table", "unsuported data type")
 
-    local buttonSkip, buttonInstall = renderPromptInstall(data, dataType)
+    local buttonSkip, buttonInstall, buttonDone = renderPromptInstall(data, dataType)
 
     -- Await user input and install the program when confirmed
     repeat
+        term.setTextColor(colors.white)
+        term.setBackgroundColor(colors.black)
         local success = true
         local event, mouse, x, y = os.pullEvent("mouse_click")
-        print("mouse click at ", x, y)
-        if buttonSkip.click(x, y) then
-            print("skipped installing " .. dataType.name)
+        if buttonSkip and buttonSkip.click(x, y) then
+            print("Skipped installing " .. dataType.name)
             if data.required then
                 term.setTextColor(colors.red)
                 term.setBackgroundColor(colors.black)
@@ -404,9 +429,11 @@ local function promptInstall(data, dataType)
                 until valid
             end
             if dataType.cancel then dataType.cancel(data) end
-        elseif buttonInstall.click(x, y) then
-            print("installing " .. dataType.name)
+        elseif buttonInstall and buttonInstall.click(x, y) then
+            print("Installing " .. dataType.name)
             dataType.install(data)
+        elseif buttonDone and buttonDone.click(x, y) then
+            success = true
         else
             success = false
         end
@@ -426,23 +453,34 @@ for id, moduleData in pairs(modules) do
     promptInstall(moduleData, "module")
 end
 
--- prompt running on startup
+-- Install startup file and move existing one to startupScripts/
+if fs.exists("startup.lua") then
+    table.insert(fsChanges, { action = "move", type = "file", from = "startup.lua", to = "startupScripts/startup.lua" })
+    fs.move("startup.lua", "startupScripts/startup.lua")
+    print("Moved old startup.lua to startupScripts/startup.lua")
+end
+downloadFile(prgmFiles.fileLocation .. "startup.lua", "startup.lua")
+
+-- prompt running UI on startup
 settings.define("KGinfractions.startup", {
     description = "wether to launch user interface on startup",
     default = true,
     type = "boolean"
 })
+
 local w, h = term.getSize()
-local halfWidth = (w-21)/2
+local halfWidth = (w - 21) / 2
 local stripes = ("="):rep(halfWidth)
+
 promptInstall({
-    name = stripes.."[ LAUNCH ON STARTUP ]"..stripes,
+    name = stripes .. "[ LAUNCH ON STARTUP ]" .. stripes,
     description = "Would you like to launch the user interface on startup?"
 }, {
     name = "startup",
     hasAuthor = false,
     hasSocials = false,
     hasDescription = true,
+    alwaysThisDevice = true,
     labels = { "  No   ", "  Yes  " },
     install = function(data)
         settings.set("KGinfractions.startup", true)
@@ -456,7 +494,7 @@ promptInstall({
 term.setTextColor(colors.white)
 term.setBackgroundColor(colors.black)
 term.clear()
-term.setCursorPos(1,1)
+term.setCursorPos(1, 1)
 
 local input
 repeat
@@ -466,4 +504,10 @@ until input == "y" or input == "n"
 if input == "y" then
     os.reboot()
 end
+
+term.setTextColor(colors.white)
+term.setBackgroundColor(colors.black)
+term.clear()
+term.setCursorPos(1, 1)
+
 print("installed successfully, run 'userfacing/viewDatabase.lua' to start")
