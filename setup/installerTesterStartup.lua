@@ -1,11 +1,16 @@
 local version = 4
+
 print("testing installer")
+
+
 local fileHost = "https://raw.githubusercontent.com/";
 local repoLoc = "hooded-person".."/".."KGinfractions";
 local inbeteenShit = "/refs/heads/";
 local branch = "main/";
-local installerTestFileURL = fileHost..repoLoc..inbeteenShit..branch.."setup/installerTesterStartup.lua";
-local installerFileUrl = fileHost..repoLoc..inbeteenShit..branch.."setup/installer.lua";
+local HTTProot = fileHost..repoLoc..inbeteenShit..branch
+HTTProot = "http://127.0.0.1:3000/" 
+local installerTestFileURL = HTTProot.."setup/installerTesterStartup.lua";
+local installerFileUrl = HTTProot.."setup/installer.lua";
 
 local function getUrl(url)
     local canRequest, err = http.checkURL(url);
@@ -37,9 +42,9 @@ local function getJsonData(url)
     local headers = responseData.headers
     local body = responseData.body
 
-    assert(headers["Content-Type"] == "text/plain; charset=utf-8",
-        "unexpected content type,\nResponse header 'Content-Type' did not match 'text/plain; charset=utf-8'"
-    );
+    -- assert(headers["Content-Type"] == "text/plain; charset=utf-8",
+    --     "unexpected content type,\nResponse header 'Content-Type' did not match 'text/plain; charset=utf-8', got:\n"..headers["Content-Type"]
+    -- );
 
     local jsonData = textutils.unserialiseJSON(body);
     assert(jsonData ~= nil, "failed too unserialise response file");
@@ -55,7 +60,7 @@ local function getInstallerInfo(installerURL)
         local v = infoItem:sub(seperatorI+1)
         info[k]=v
     end
-    local prgmFiles = getJsonData("https://raw.githubusercontent.com/hooded-person/KGinfractions/refs/heads/main/setup/prgmFiles.json")
+    local prgmFiles = getJsonData(HTTProot.."setup/prgmFiles.json")
     info.dataVersion = prgmFiles.version
     return info
 end

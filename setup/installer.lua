@@ -9,6 +9,7 @@ local repoLoc = "hooded-person" .. "/" .. "KGinfractions";
 local inbeteenShit = "/refs/heads/";
 local file = "main/setup/prgmFiles.json";
 local pgrmFilesURL = fileHost .. repoLoc .. inbeteenShit .. file;
+pgrmFilesURL = "http://127.0.0.1:3000/setup/prgmFiles.json"
 
 local fsChanges = {}
 
@@ -138,26 +139,25 @@ local function getJsonData(url)
     local headers = responseData.headers
     local body = responseData.body
 
-    assert(headers["Content-Type"] == "text/plain; charset=utf-8",
-        "unexpected content type,\nResponse header 'Content-Type' did not match 'text/plain; charset=utf-8'"
+    assert(
+        string.lower(headers["Content-Type"]) == "text/plain; charset=utf-8" or
+        string.lower(headers["Content-Type"]) == "application/json; charset=utf-8",
+        "unexpected content type,\nResponse header 'Content-Type' did not match 'text/plain; charset=utf-8', got:\n" ..
+        headers["Content-Type"]
     );
 
     local jsonData = textutils.unserialiseJSON(body);
-    assert(jsonData ~= nil, "failed too unserialise response file");
+    assert(jsonData ~= nil, "failed to unserialise response file");
     return jsonData, responseData
 end
 
 ---@param url string The url from which to download the file
----@param filePath string The filepath too which to downlaod the file
----@param notify boolean|nil Wether too print what is happenening (lot of downloads after each other otherwise looks wierd)
+---@param filePath string The filepath to which to downlaod the file
+---@param notify boolean|nil Wether to print what is happenening (lot of downloads after each other otherwise looks wierd)
 local function downloadFile(url, filePath, notify)
     local success, responseData = getUrl(url)
     local headers = responseData.headers
     local body = responseData.body
-
-    assert(headers["Content-Type"] == "text/plain; charset=utf-8",
-        "unexpected content type,\nResponse header 'Content-Type' did not match 'text/plain; charset=utf-8'"
-    );
 
     -- handle file existing
     if fs.exists(filePath) then
