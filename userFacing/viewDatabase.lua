@@ -329,13 +329,6 @@ local function containsExpandedButton(buttonMenu, indexList)
     return nil
 end
 
-local function restoreBackToMain(button, indexList)
-    local buttonMenu
-    for i, v in ipairs(indexList) do
-
-    end
-    return buttonMenu
-end
 
 local function captureInputForDB(items, indexToUUID, sort, scroll, uuids, barButtons, selection, expandedUUID,
                                  expandedFormatData)
