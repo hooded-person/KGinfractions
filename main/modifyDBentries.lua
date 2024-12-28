@@ -27,7 +27,7 @@ else
     if input == "y" then
         shell.run("/userFacing/viewDatabase")
     end
-    error()
+    error("")
 end
 
 local entryUuids = arg
@@ -101,7 +101,11 @@ local function printValue(value)
     print(value)
     term.setTextColor(colors.white)
 end
-
+---@param loopTable table
+---@param trackTable table
+---@param depth? number
+---@param maxDepth? number
+---@return nil
 local function showTable(loopTable, trackTable, depth, maxDepth)
     if depth == nil then depth = 0 end
     if maxDepth == nil then maxDepth = -1 end
