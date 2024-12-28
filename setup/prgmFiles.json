@@ -39,7 +39,8 @@
     ],
     "modules": {
         "templates": {
-            "name": "example templates",
+            "name": "Example templates",
+            "description":"",
             "dirs": [
                 "templates"
             ],

@@ -45,6 +45,7 @@ abort.rollback.new = function(fsChange)
 end
 abort.rollback.move = function(fsChange)
     fs.move(fsChange.to, fsChange.from) -- was moved "fsChange.from" to "fsChange.to", now reversing that action
+    print(("moved back '%s' to '%s'"):format(fsChange.to, fsChange.from))
 end
 
 local abortMeta = {}
@@ -72,6 +73,14 @@ abortMeta.__call = function() -- main abort function
         progressBar(i, #fsChanges, width - 2)
     end
     term.setCursorPos(1, 5)
+
+    -- aborting installation finished
+    term.setTextColor(colors.white)
+    term.setBackgroundColor(colors.black)
+    term.clear()
+    term.setCursorPos(1, 1)
+    print("aborted installation")
+    error("")
 end
 setmetatable(abort, abortMeta)
 
@@ -88,7 +97,7 @@ local function makeFile(filePath, fileContent)
     h.close()
     return true
 end
----@param path string Path for which too make the file
+---@param path string Path for which to make the file
 local function makeDir(path)
     if not fs.exists(path) then
         fs.makeDir(path)
@@ -111,7 +120,7 @@ local function getUrl(url)
     local response, err, failResponse = http.get({
         url = url,
     });
-    if err then
+    if err or response == nil then
         response = failResponse;
     end;
     local statusCode = response.getResponseCode();
@@ -229,7 +238,8 @@ local types = {
         name = "external application",
         hasAuthor = true,
         hasSocials = true,
-        install = function (data)
+        hasDescription = false,
+        install = function(data)
             shell.run(data.installCmd:gsub("__ROOT__", settings.get("KGinfractions.root")))
         end
     },
@@ -237,23 +247,25 @@ local types = {
         name = "module",
         hasAuthor = false,
         hasSocials = false,
-        install = function (data)
+        hasDescription = true,
+        install = function(data)
             installItems(data.dirs, data.files, (data.fileLocation or prgmFiles.fileLocation))
         end
     }
 }
-local function promptInstall(data, dataType)
+
+local function renderPromptInstall(data, dataType)
+    if type(dataType) == "string" then
+        dataType = types[dataType]
+    elseif type(dataType) == "table" and type(dataType[1]) == "string" then
+        dataType = types[dataType[1]]
+    end
+    assert(type(dataType) == "table", "unsuported data type")
+
     term.setTextColor(colors.white)
     term.setBackgroundColor(colors.black)
     term.setCursorPos(1, 1)
     term.clear()
-
-    if type(dataType) == "string" then
-        dataType = types[dataType]
-    elseif type(dataType) == "table" and type(dataType[1]) == "string" then 
-        dataType = types[dataType[1]]
-    end
-    assert(type(dataType)=="table","unsuported data type")
 
     local author
     if type(data.author) == "string" then
@@ -286,16 +298,21 @@ local function promptInstall(data, dataType)
     end
     -- sources
     if data.projectPage then
-        print(("view on %s"):format(data.projectPage:gsub("^https?://","")))
+        print(("view on %s"):format(data.projectPage:gsub("^https?://", "")))
     end
     if data.github then
         local githubRepo = data.github:gsub("^https?://github.com/", "")
         print("view on github: " .. githubRepo)
     end
+    if dataType.hasDescription then
+        print(data.description)
+    end
+    print("")
 
-    -- actual installation
-    local buttonSkip = " Skip  "
-    local buttonInstall = "Install"
+    -- Drawing the buttonSkip
+    dataType.labels = dataType.labels or { " Skip  ", "Install" }
+    local buttonSkip = dataType.labels[1]
+    local buttonInstall = dataType.labels[2]
     if data.required then
         term.setTextColor(colors.lightGray)
         write("This external application is required")
@@ -304,67 +321,93 @@ local function promptInstall(data, dataType)
         term.setTextColor(colors.white)
         buttonSkip = "Cancel "
     end
-    print("Would you like too install this "..dataType.name.."?")
+    print("Would you like to install this " .. dataType.name .. "?")
     local w, h = term.getSize()
     local x, y = term.getCursorPos()
     local padding = 2
-    local buttonWidth = 7 + 2*padding
-    local spaceAround = (w - buttonWidth*2) / 3
+    local buttonWidth = 7 + 2 * padding
+    local spaceAround = (w - buttonWidth * 2) / 3
 
     ---@param corners table A list containing 2 lists containing the x and y of each point {{x,y},{x,y}}
     ---@param label string The text for on the button
     ---@param padding number Padding around the text
     ---@param color number Background color of the button
-    local function button(corners,label,padding, color)
+    local function button(corners, label, padding, color)
         padding = padding or 0
-        paintutils.drawFilledBox(corners[1][1],corners[1][2],
-            corners[2][1], corners[2][2], color
-        )
-        local txtY = corners[1][2]+((corners[2][2]-corners[1][2])/2)
-        term.setCursorPos(corners[1][1] + padding, txtY)
-        write(label)
-        return {click = function(x, y)
+        local tButton = {
+            click = function(x, y)
                 return x >= corners[1][1] and x <= corners[2][1] and y >= corners[1][2] and y <= corners[2][2]
+            end,
+            draw = function()
+                paintutils.drawFilledBox(corners[1][1], corners[1][2],
+                    corners[2][1], corners[2][2], color
+                )
+                local txtY = corners[1][2] + ((corners[2][2] - corners[1][2]) / 2)
+                term.setCursorPos(corners[1][1] + padding, txtY)
+                write(label)
             end,
             label = label
         }
+        tButton.draw()
+        return tButton
     end
-    local buttonSkipCorners = {{spaceAround, y+1},{spaceAround+buttonWidth -1,y+3}}
+    local buttonSkipCorners = { { spaceAround, y + 1 }, { spaceAround + buttonWidth - 1, y + 3 } }
     local buttonSkip = button(buttonSkipCorners, buttonSkip, padding, colors.gray)
 
-    local buttonInstallCorners = {{2 * spaceAround + buttonWidth, y + 1},{2*spaceAround + 2*buttonWidth-1, y + 3}}
+    local buttonInstallCorners = { { 2 * spaceAround + buttonWidth, y + 1 }, { 2 * spaceAround + 2 * buttonWidth - 1, y + 3 } }
     local buttonInstall = button(buttonInstallCorners, buttonInstall, padding, colors.gray)
 
-    term.setCursorPos(1, y+4)
+    term.setCursorPos(1, y + 4)
+    return buttonSkip, buttonInstall
+end
 
+---@param data table The data about the thing that is being prompted to be installed
+---@param dataType string|table Info about the type of the application and how the data has to be processed
+local function promptInstall(data, dataType)
+    if type(dataType) == "string" then
+        dataType = types[dataType]
+    elseif type(dataType) == "table" and type(dataType[1]) == "string" then
+        dataType = types[dataType[1]]
+    end
+    assert(type(dataType) == "table", "unsuported data type")
+
+    local buttonSkip, buttonInstall = renderPromptInstall(data, dataType)
+
+    -- Await user input and install the program when confirmed
     repeat
         local success = true
         local event, mouse, x, y = os.pullEvent("mouse_click")
         print("mouse click at ", x, y)
-        if buttonSkip.click(x,y) then
-            print("skipped installing "..dataType.name)
-            if data.required then 
-                term.setTextColor(colors.orange)
+        if buttonSkip.click(x, y) then
+            print("skipped installing " .. dataType.name)
+            if data.required then
+                term.setTextColor(colors.red)
                 term.setBackgroundColor(colors.black)
-                term.setCursorPos(1,1)
+                term.setCursorPos(1, 1)
                 term.clear()
-                print("This "..dataType.name.." is required\nNot installing this "..dataType.name.." will abort the installation.")
+                print("This " ..
+                    dataType.name ..
+                    " is required\nNot installing this " .. dataType.name .. " will abort the installation.")
                 repeat
+                    term.setTextColor(colors.orange)
                     print("abort the installation? y/n")
+                    term.setTextColor(colors.white)
                     local input = read()
                     local valid = false
                     if input == "y" then
                         abort()
-                    elseif input == "n" then 
+                    elseif input == "n" then
                         valid = true
                         success = false
+                        renderPromptInstall(data, dataType)
                     end
                 until valid
             end
-        elseif buttonInstall.click(x,y) then
-            print("installing "..dataType.name)
+            if dataType.cancel then dataType.cancel(data) end
+        elseif buttonInstall.click(x, y) then
+            print("installing " .. dataType.name)
             dataType.install(data)
-        else 
+        else
             success = false
         end
     until success
@@ -379,8 +422,48 @@ end
 
 -- handle optional modules/templates
 local modules = prgmFiles.modules
-for id, moduleData in pairs(modules) do 
+for id, moduleData in pairs(modules) do
     promptInstall(moduleData, "module")
 end
 
--- abort()
+-- prompt running on startup
+settings.define("KGinfractions.startup", {
+    description = "wether to launch user interface on startup",
+    default = true,
+    type = "boolean"
+})
+local w, h = term.getSize()
+local halfWidth = (w-21)/2
+local stripes = ("="):rep(halfWidth)
+promptInstall({
+    name = stripes.."[ LAUNCH ON STARTUP ]"..stripes,
+    description = "Would you like to launch the user interface on startup?"
+}, {
+    name = "startup",
+    hasAuthor = false,
+    hasSocials = false,
+    hasDescription = true,
+    labels = { "  No   ", "  Yes  " },
+    install = function(data)
+        settings.set("KGinfractions.startup", true)
+        settings.save()
+    end,
+    cancel = function(data)
+        settings.set("KGinfractions.startup", false)
+        settings.save()
+    end
+})
+term.setTextColor(colors.white)
+term.setBackgroundColor(colors.black)
+term.clear()
+term.setCursorPos(1,1)
+
+local input
+repeat
+    print("Rebooting is required for full functionality, would you like to reboot now y/n")
+    input = read()
+until input == "y" or input == "n"
+if input == "y" then
+    os.reboot()
+end
+print("installed successfully, run 'userfacing/viewDatabase.lua' to start")
