@@ -45,12 +45,12 @@ local function main()
         local event, user, dimension = os.pullEvent("playerJoin")
         printC("player joined: '"..user.."'","white",consoleWin)
         local h, er = fs.open(filePath,"r")
-        if not h then
-            error(er)
+        local players
+        if h then
+            players = h.readAll()
+            h.close()
+            players = textutils.unserialise(players)
         end
-        local players = h.readAll()
-        h.close()
-        players = textutils.unserialise(players)
         if not players then 
             players = {{},{}}
         end
@@ -83,10 +83,15 @@ local function list()
     local width,height = term.getSize()
 
     local h = fs.open(filePath,"r")
-    local players = h.readAll()
-    h.close()
-    players = textutils.unserialise(players)
-    players = players[2]
+    local players
+    if h then
+        players = h.readAll()
+        h.close()
+        players = textutils.unserialise(players)
+        players = players[2]
+    else 
+        players = {}
+    end
 
 
     listWin.clear()

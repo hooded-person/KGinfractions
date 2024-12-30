@@ -558,7 +558,7 @@ local function getBarButtons(selection)
                     elseif func == nil then
                         error("function from file '/userFacing/selectMessage.lua' is nil but no error was given")
                     end
-                    func()
+                    pcall(func)
                 end,
             }, {
                 label = "Template",
