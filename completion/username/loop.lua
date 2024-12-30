@@ -102,10 +102,16 @@ local function list()
         
         if event == "updated" then 
             local h = fs.open(filePath,"r")
-            local playersR = h.readAll()
-            h.close()
-            playersR = textutils.unserialise(playersR)
-            players = playersR[2]
+            local playersR
+            if h then
+                playersR = h.readAll()
+                h.close()
+                playersR = textutils.unserialise(playersR)
+                players = playersR[2]
+            else
+                playersR = {{},{}}
+                players = playersR[2]
+            end
         end
         if (event == "mouse_scroll" or event == "updated") and x > ratio/51*width+1 then
             listWin.clear()
