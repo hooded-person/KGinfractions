@@ -25,7 +25,7 @@ else
         looped = true
     until input == "y" or input == "n"
     if input == "y" then
-        shell.run("/userFacing/viewDatabase")
+        shell.run(require("/main/makePath")("/userFacing/viewDatabase"))
     end
     error()
 end
@@ -164,7 +164,7 @@ local function getInput(entry, rowTracking)
     --print(clickedItem[1])
     term.setCursorPos(clickedItem[2] + 1, y)
     local preparedValue = prepareValue(currentValue)
-    local newValue = read(nil, nil, nil, preparedValue)
+    local newValue = read(nil, nil, nil, tostring(preparedValue))
     term.setTextColor(colors.white)
 
     entry = load("searchingTable" .. query .. " = " .. newValue .. ";return searchingTable", "=generatedIndexing", "t",
