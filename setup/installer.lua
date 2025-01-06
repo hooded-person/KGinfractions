@@ -1,4 +1,4 @@
--- v:6
+-- v:6.3
 term.setTextColor(colors.white)
 term.setBackgroundColor(colors.black)
 term.clear()
@@ -339,7 +339,8 @@ local function promptInstall(data, dataType)
 
     repeat
         local success = true
-        local event, x, y, mouse = os.pullEvent("mouse_click")
+        local event, mouse, x, y = os.pullEvent("mouse_click")
+        print("mouse click at ", x, y)
         if buttonSkip.click(x,y) then
             print("skipped installing "..dataType.name)
             if data.required then 
@@ -370,133 +371,16 @@ local function promptInstall(data, dataType)
 end
 
 -- handle external items
-
----@param external table All info about the external program
-local function installExternal(external)
-    term.setTextColor(colors.white)
-    term.setBackgroundColor(colors.black)
-    term.setCursorPos(1, 1)
-    term.clear()
- 
-    local author
-    if type(external.author) == "string" then
-        author = { name = external.author }
-    elseif type(external.author) == "table" then
-        author = external.author
-    else
-        author = { name = "Unkown" }
-    end
-    author.socials = author.socials or {}
- 
-    -- external info and author credits
-    print(external.name .. " by " .. author.name)
-    term.setTextColor(colors.gray)
-    local w, h = term.getSize()
-    for k, v in pairs(author.socials) do
-        local x, y = term.getCursorPos()
-        local socialMsg = (x == 1 and "" or " | ") .. k .. ": " .. v
-        if x + #socialMsg <= w then
-            write(socialMsg)
-        end
-    end
-    print("")
-    term.setTextColor(colors.white)
-    term.setBackgroundColor(colors.black)
-    -- sources
-    if external.projectPage then
-        print(("view on %s"):format(external.projectPage:gsub("^https?://","")))
-    end
-    if external.github then
-        local githubRepo = external.github:gsub("^https?://github.com/", "")
-        print("view on github: " .. githubRepo)
-    end
-    -- actual installation
-    local buttonSkip = " Skip  "
-    local buttonInstall = "Install"
-    if external.required then
-        term.setTextColor(colors.lightGray)
-        write("This external application is required")
-        term.setTextColor(colors.red)
-        print("*")
-        term.setTextColor(colors.white)
-        buttonSkip = "Cancel "
-    end
-    print("Would you like too install this external application?")
-    local x, y = term.getCursorPos()
-    local padding = 2
-    local buttonWidth = 7 + 2*padding
-    local spaceAround = (w - buttonWidth*2) / 3
-
-    ---@param corners table A list containing 2 lists containing the x and y of each point {{x,y},{x,y}}
-    ---@param label string The text for on the button
-    ---@param padding number Padding around the text
-    ---@param color number Background color of the button
-    local function button(corners,label,padding, color)
-        padding = padding or 0
-        paintutils.drawFilledBox(corners[1][1],corners[1][2],
-            corners[2][1], corners[2][2], color
-        )
-        local txtY = corners[1][2]+((corners[2][2]-corners[1][2])/2)
-        term.setCursorPos(corners[1][1] + padding, txtY)
-        write(label)
-        return {click = function(x, y)
-                return x >= corners[1][1] and x <= corners[2][1] and y >= corners[1][2] and y <= corners[2][2]
-            end,
-            label = label
-        }
-    end
-    local buttonSkipCorners = {{spaceAround, y+1},{spaceAround+buttonWidth -1,y+3}}
-    local buttonSkip = button(buttonSkipCorners, buttonSkip, padding, colors.gray)
-
-    local buttonInstallCorners = {{2 * spaceAround + buttonWidth, y + 1},{2*spaceAround + 2*buttonWidth-1, y + 3}}
-    local buttonInstall = button(buttonInstallCorners, buttonInstall, padding, colors.gray)
-
-    term.setCursorPos(1, y+4)
-
-    repeat
-        local success = true
-        local event, x, y, mouse = os.pullEvent("mouse_click")
-        if buttonSkip.click(x,y) then
-            print("skipped installing external")
-            if external.required then 
-                term.setTextColor(colors.orange)
-                term.setBackgroundColor(colors.black)
-                term.setCursorPos(1,1)
-                term.clear()
-                print("This external application is required\nNot installing this external application will abort the installation.")
-                repeat
-                    print("abort the installation? y/n")
-                    local input = read()
-                    local valid = false
-                    if input == "y" then
-                        abort()
-                    elseif input == "n" then 
-                        valid = true
-                        success = false
-                    end
-                until valid
-            end
-        elseif buttonInstall.click(x,y) then
-            print("installing external")
-            shell.run(external.installCmd:gsub("__ROOT__", settings.get("KGinfractions.root")))
-        else 
-            success = false
-        end
-    until success
-end
-
-
 local externals = prgmFiles.external
 for _, external in ipairs(externals) do
     promptInstall(external, "external")
     --installExternal(external)
 end
 
-
---[[ handle optional modules/templates
+-- handle optional modules/templates
 local modules = prgmFiles.modules
 for id, moduleData in pairs(modules) do 
-
-end--]]
+    promptInstall(moduleData, "module")
+end
 
 -- abort()

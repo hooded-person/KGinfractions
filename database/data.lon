@@ -24,13 +24,13 @@
     deadline = 1733310732,
     formatData = {
       date = "04/12/2024",
-      user = "Hooded",
+      user = "jeb",
       item = "bedrock",
       deadline = "04/12/2024",
     },
     templateFile = "warnIllegalItem.sdoc",
     time = 1733265444.489,
-    user = "Hooded",
+    user = "jeb",
   },
   [ "05134128-3323-9405-08c6-998324a731ba" ] = {
     template = {
@@ -124,13 +124,13 @@
       "WARN",
       "no stock",
     },
-    user = "peter",
+    user = "Alex",
     time = 1733689442.435,
     templateFile = "warnNoStock.sdoc",
     formatData = {
       date = "08/12/2024",
       deadline = "10/12/2024",
-      user = "peter",
+      user = "Alex",
     },
     source = "M.selectMessage.lua",
   },
