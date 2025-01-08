@@ -25,7 +25,7 @@ else
         looped = true
     until input == "y" or input == "n"
     if input == "y" then
-        shell.run("/userFacing/viewDatabase")
+        shell.run(require("/main/makePath")("/userFacing/viewDatabase"))
     end
     error("")
 end
