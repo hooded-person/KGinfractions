@@ -1,14 +1,24 @@
 -- v:6.3
-term.setTextColor(colors.white)
-term.setBackgroundColor(colors.black)
-term.clear()
-term.setCursorPos(1, 1)
+---@param fgColor? number
+---@param bgColor? number
+---@param x? number
+---@param y? number
+local function clearTerm(fgColor, bgColor,x,y)
+    fgColor = fgColor or colors.white
+    bgColor = bgColor or colors.black
+    term.setTextColor(colors.white)
+    term.setBackgroundColor(colors.black)
+    term.clear()
+    term.setCursorPos(x or 1, y or 1)
+end
+clearTerm()
 
 local fileHost = "https://raw.githubusercontent.com/";
 local repoLoc = "hooded-person" .. "/" .. "KGinfractions";
 local inbeteenShit = "/refs/heads/";
 local file = "main/setup/prgmFiles.json";
 local pgrmFilesURL = fileHost .. repoLoc .. inbeteenShit .. file;
+pgrmFilesURL = "http://127.0.0.1:8000/setup/prgmFiles.json"
 
 local fsChanges = {}
 
@@ -48,10 +58,7 @@ end
 
 local abortMeta = {}
 abortMeta.__call = function() -- main abort function
-    term.setTextColor(colors.red)
-    term.setBackgroundColor(colors.black)
-    term.clear()
-    term.setCursorPos(1, 1)
+    clearTerm(colors.red)
     print(" ABORTING INSTALATION")
     local width, height = term.getSize()
     term.setCursorPos(2, 2)
@@ -70,7 +77,10 @@ abortMeta.__call = function() -- main abort function
         term.clearLine()
         progressBar(i, #fsChanges, width - 2)
     end
-    term.setCursorPos(1, 5)
+    clearTerm()
+    print("aborted successfully")
+    os.queueEvent("terminate")
+    sleep(10)
 end
 setmetatable(abort, abortMeta)
 
@@ -110,8 +120,10 @@ local function getUrl(url)
     local response, err, failResponse = http.get({
         url = url,
     });
-    if err then
+    if err and failResponse then
         response = failResponse;
+    elseif err and not failResponse then
+        error(err)
     end;
     local statusCode = response.getResponseCode();
     local headers = response.getResponseHeaders();
@@ -138,9 +150,7 @@ local function getJsonData(url)
     local headers = responseData.headers
     local body = responseData.body
 
-    assert(headers["Content-Type"] == "text/plain; charset=utf-8",
-        "unexpected content type,\nResponse header 'Content-Type' did not match 'text/plain; charset=utf-8'"
-    );
+    
 
     local jsonData = textutils.unserialiseJSON(body);
     assert(jsonData ~= nil, "failed too unserialise response file");
@@ -155,21 +165,19 @@ local function downloadFile(url, filePath, notify)
     local headers = responseData.headers
     local body = responseData.body
 
-    assert(headers["Content-Type"] == "text/plain; charset=utf-8",
-        "unexpected content type,\nResponse header 'Content-Type' did not match 'text/plain; charset=utf-8'"
-    );
+    clearTerm()
 
     -- handle file existing
     if fs.exists(filePath) then
         warn(("The file '%s' already exists"):format(filePath))
         local input
         repeat
-            print("would you like to overwrite this file (THIS CAN NOT BE UNDONE). y/n")
+            print("Would you like to overwrite this file (THIS CAN NOT BE RESTORED). y/n")
             input = read()
         until input == "y" or input == "n"
         if input ~= "y" then
             ---@diagnostic disable-next-line: undefined-global
-            abort() -- currently undefined, will also end the installer :/
+            abort()
         end
     end
     makeFile(filePath, body)
@@ -220,6 +228,7 @@ local function installItems(directories, files, fileSource)
     end
 end
 
+--[[
 -- always install
 installItems(prgmFiles.directories, prgmFiles.files, prgmFiles.fileLocation)
 
@@ -242,11 +251,10 @@ local types = {
         end
     }
 }
+---@param data table
+---@param dataType string|table
 local function promptInstall(data, dataType)
-    term.setTextColor(colors.white)
-    term.setBackgroundColor(colors.black)
-    term.setCursorPos(1, 1)
-    term.clear()
+    clearTerm()
 
     if type(dataType) == "string" then
         dataType = types[dataType]
@@ -344,10 +352,7 @@ local function promptInstall(data, dataType)
         if buttonSkip.click(x,y) then
             print("skipped installing "..dataType.name)
             if data.required then 
-                term.setTextColor(colors.orange)
-                term.setBackgroundColor(colors.black)
-                term.setCursorPos(1,1)
-                term.clear()
+                clearTerm(colors.orange)
                 print("This "..dataType.name.." is required\nNot installing this "..dataType.name.." will abort the installation.")
                 repeat
                     print("abort the installation? y/n")
@@ -376,6 +381,7 @@ for _, external in ipairs(externals) do
     promptInstall(external, "external")
     --installExternal(external)
 end
+--]]
 
 -- handle optional modules/templates
 local modules = prgmFiles.modules
@@ -383,4 +389,26 @@ for id, moduleData in pairs(modules) do
     promptInstall(moduleData, "module")
 end
 
--- abort()
+-- new module system with checkboxes
+---@param processData table
+---@param data table
+---@param dataType string|table
+local function genLine(processData, data, dataType)
+    local w,h = term.getSize()
+
+    local checkedTxt = "["..processData.checked and "x" or " ".."]"
+    local infoBtn = processData.infoOpen and "[i]" or "(i)"
+    local startSnapTxt = checkedTxt.." "..data.name
+    local endSnapTxt = infoBtn
+    local filler = (" "):rep(w-#startSnapTxt-#endSnapTxt)
+    return startSnapTxt..filler..endSnapTxt
+end
+---@param dataList table List containing data items
+---@param dataType table Type table for all data items in dataList
+---@return nil
+local function promptInstallList(dataList, dataType)
+
+end
+promptInstallList(modules, "module")
+
+clearTerm()
