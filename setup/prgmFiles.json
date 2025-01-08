@@ -14,8 +14,6 @@
     "files": [
         "database/addProcessing.lua",
         "database/init.lua",
-        "database/test.lua",
-        "database/tests.lua",
         "libs/loadPath.lua",
         "libs/selectionManager.lua",
         "main/makePath.lua",
@@ -83,10 +81,10 @@
                 "completion.username"
             ],
             "dirs": [
-                "database"
+                "completion"
             ],
             "files": [
-                "database/data.lon"
+                "completion/username/players.lon"
             ]
         }
     },
