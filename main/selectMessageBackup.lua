@@ -1,3 +1,4 @@
+---@diagnostic disable: missing-parameter
 local templateDir = "templates/"
 if templateDir:sub(-1) ~= "/" then templateDir = templateDir .. "/" end
 local spclib = require("/libs/spclib")

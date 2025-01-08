@@ -45,12 +45,12 @@ local function main()
         local event, user, dimension = os.pullEvent("playerJoin")
         printC("player joined: '"..user.."'","white",consoleWin)
         local h, er = fs.open(filePath,"r")
-        if not h then
-            error(er)
+        local players
+        if h then
+            players = h.readAll()
+            h.close()
+            players = textutils.unserialise(players)
         end
-        local players = h.readAll()
-        h.close()
-        players = textutils.unserialise(players)
         if not players then 
             players = {{},{}}
         end
@@ -83,10 +83,15 @@ local function list()
     local width,height = term.getSize()
 
     local h = fs.open(filePath,"r")
-    local players = h.readAll()
-    h.close()
-    players = textutils.unserialise(players)
-    players = players[2]
+    local players
+    if h then
+        players = h.readAll()
+        h.close()
+        players = textutils.unserialise(players)
+        players = players[2]
+    else 
+        players = {}
+    end
 
 
     listWin.clear()
@@ -97,10 +102,16 @@ local function list()
         
         if event == "updated" then 
             local h = fs.open(filePath,"r")
-            local playersR = h.readAll()
-            h.close()
-            playersR = textutils.unserialise(playersR)
-            players = playersR[2]
+            local playersR
+            if h then
+                playersR = h.readAll()
+                h.close()
+                playersR = textutils.unserialise(playersR)
+                players = playersR[2]
+            else
+                playersR = {{},{}}
+                players = playersR[2]
+            end
         end
         if (event == "mouse_scroll" or event == "updated") and x > ratio/51*width+1 then
             listWin.clear()

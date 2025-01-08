@@ -14,15 +14,33 @@ settings.define("kgTF.typeColors", {
 })
 local typeColors = settings.get("kgTF.typeColors")
 local templatesStrings = fs.list(templateDir)
+
+local templatesExist = false
+for _, templatePath in ipairs(templatesStrings) do
+    templatesExist = templatesExist or (templatePath:sub(-5) == ".sdoc"
+        and templatePath:sub(1, 4) ~= "hide")
+end
+
+if not templatesExist then
+    term.setTextColor(colors.orange)
+    term.setBackgroundColor(colors.black)
+    term.clear()
+    term.setCursorPos(1, 1)
+
+    print("NO TEMPLATES TO SELECT YET\nPlease make some templates first")
+    sleep(2)
+    error("noTemplates", 0)
+end
+
 --local templateExists = { {}, {} }
 local templateListBuild = {
     ["type"] = {},
---    ["reason"] = {}
+    --    ["reason"] = {}
 }
 local templates = {}
-for i, templatePath in ipairs(templatesStrings) do
-    local validTemplate = templatePath:sub(-5) == ".sdoc" 
-        and templatePath:sub(1,4) ~= "hide"
+for _, templatePath in ipairs(templatesStrings) do
+    local validTemplate = templatePath:sub(-5) == ".sdoc"
+        and templatePath:sub(1, 4) ~= "hide"
     if validTemplate then
         local template = templatePath:gsub(".sdoc", "")
         local keywords = {}
@@ -53,12 +71,13 @@ for i, templatePath in ipairs(templatesStrings) do
         --templateListBuild["reason"][table.concat(keywords, " ")] = true
     end
 end
---error(textutils.serialise(templates))
+
+-- error(textutils.serialise(templates))
 
 -- building the values into the array
 local templateList = {
     ["type"] = {},
---    ["reason"] = {}
+    --    ["reason"] = {}
 }
 for k, _ in pairs(templateListBuild["type"]) do
     table.insert(templateList["type"], k)
@@ -67,7 +86,7 @@ end
 ---@param offset? number offset too add too current time
 ---@param pattern? string patern too return time string in
 ---@param timezone? string
----@return string|osdate the date/time string 
+---@return string|osdate the date/time string
 local function getCurrentDate(offset, pattern, timezone)
     offset = offset or 0
     pattern = pattern or "%d/%m/%Y"
@@ -93,7 +112,7 @@ local function getFormatData(template)
     term.setTextColor(colors.white)
     term.setCursorPos(1, 1)
     write("formating for template ")
-    term.setTextColor(typeColors[ template[1] ])
+    term.setTextColor(typeColors[template[1]])
     write(template[1])
     term.setTextColor(colors.white)
     print(":" .. template[2])
@@ -107,13 +126,13 @@ local function getFormatData(template)
         if not index then
             var = match
         else
-            var = match:sub(0,index-1)
-            local compFuncPath = match:sub(index+1)
-            if not fs.exists("completion/"..compFuncPath) or compFuncPath == "" then
+            var = match:sub(0, index - 1)
+            local compFuncPath = match:sub(index + 1)
+            if not fs.exists("completion/" .. compFuncPath) or compFuncPath == "" then
                 compFunc = nil
             else
-                print( "completion/"..compFuncPath )
-                compFunc = require("/completion/"..compFuncPath)
+                print("completion/" .. compFuncPath)
+                compFunc = require("/completion/" .. compFuncPath)
             end
         end
 
@@ -122,7 +141,7 @@ local function getFormatData(template)
             formatData[var] = getCurrentDate()
         elseif var == "deadline" then
             print("enter deadline (number+'m/h/d/w')(default '1w')")
-            local input = read(nil,nil,require "/completion/deadline")
+            local input = read(nil, nil, require "/completion/deadline")
             if input == "" then
                 local x, y = term.getCursorPos()
                 term.setCursorPos(x, y - 1)
@@ -134,18 +153,18 @@ local function getFormatData(template)
                     input:match("%a"),
                 }
             end
-            input = input[1] * conversionTable[ input[2] ]
+            input = input[1] * conversionTable[input[2]]
             local deadline = getCurrentDate(input)
             print("deadline set to:", deadline)
             formatData[var] = deadline
         else
             print("enter value for " .. var)
-            local input = read(nil,nil,compFunc)
+            local input = read(nil, nil, compFunc)
             formatData[var] = input
         end
     end
     term.clear()
-    term.setCursorPos(1,1)
+    term.setCursorPos(1, 1)
     return formatData
 end
 
@@ -190,7 +209,7 @@ local function drawArea(selectedType, selectedTemplate, tempSelected)
         end
     end
     term.setCursorPos(30, 3)
-    local selectedTypeTemplates = templates[ templateList["type"][selectedType] ]
+    local selectedTypeTemplates = templates[templateList["type"][selectedType]]
     for i = 1, #selectedTypeTemplates do
         term.setTextColor(colors.white)
         local name = selectedTypeTemplates[i][2]
@@ -209,11 +228,10 @@ local function drawArea(selectedType, selectedTemplate, tempSelected)
 end
 
 local function selectTemplate()
-    local selectedType = 2
+    local selectedType = 1
     local selectedTemp = 1
     local tempSelected = false
     while true do
-
         drawArea(selectedType, selectedTemp, tempSelected)
         local event, key = os.pullEvent("key")
         if event == "key" then
@@ -244,11 +262,10 @@ local function selectTemplate()
             end
 
             if selectedTemp < 1 then
-                selectedTemp = #templates[ templateList["type"][selectedType] ]
-            elseif selectedTemp > #templates[ templateList["type"][selectedType] ] then
+                selectedTemp = #templates[templateList["type"][selectedType]]
+            elseif selectedTemp > #templates[templateList["type"][selectedType]] then
                 selectedTemp = 1
             end
-                
         end
     end
 end
@@ -271,7 +288,7 @@ function main(template, formatData)
     -- discord timestamps use UTC        +60*60, -- add 1 hour (in seconds) to get CET again
     })
 
-    if not success then 
+    if not success then
         term.setTextColor(colors.red)
         print("database processing failed, printing without db entry")
         term.setTextColor(colors.white)
@@ -289,9 +306,8 @@ function main(template, formatData)
 end]]
 
 local selectedType, selectedTemp = selectTemplate()
-local template = templates[ templateList["type"][selectedType] ][selectedTemp]
+local template = templates[templateList["type"][selectedType]][selectedTemp]
 
 local formatData = getFormatData(template)
 
 require("/main/printMessage")(template, formatData, "M.selectMessage.lua")
-

@@ -84,8 +84,14 @@ return function(template, formatData, source, printOnly)
     print("reference: " .. tostring(result.reference))
     term.setTextColor(colors.white)
 
-    rednet.open("right")
-    spclib.printDocument(printerHost, toPrint, amount, false)
+    if peripheral.isPresent("right") then
+        rednet.open("right")
+        spclib.printDocument(printerHost, toPrint, amount, false)
+    else 
+        term.setTextColor(colors.red)
+        print("no modem right available for rednet")
+        sleep(10)
+    end
 
 
     print("finished")

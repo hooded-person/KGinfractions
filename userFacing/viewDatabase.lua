@@ -37,6 +37,10 @@ function popup:get()
 end
 
 -- handlers
+---@param handler function
+---@param reason? any
+---@param type? any
+---@return function
 local function makeHandler(handler, reason, type) -- what did i have in mind for reason and type? no idea
     return function(...)
         local args = { ... }
@@ -58,26 +62,32 @@ local function makeHandler(handler, reason, type) -- what did i have in mind for
         return table.unpack(results)
     end
 end
+local handleExpiredWarn = makeHandler(
+---@param typeColors table Colors for each type of infraction
+---@param entry table The expired entry that is being handled
+---@param UUID string The uuid of the entry
+    function(typeColors, entry, UUID)
+        write("creating ")
+        entry.template[1] = "EVIC" -- new type
 
-local handleExpiredWarn = makeHandler(function(typeColors, entry, UUID)
-    write("creating ")
-    entry.template[1] = "EVIC" -- new type
+        term.setTextColor(typeColors[entry.template[1]])
+        write("[" .. entry.template[1] .. "] ") -- type
+        term.setTextColor(colors.white)
+        write(entry.template[2])                -- template/reason
 
-    term.setTextColor(typeColors[entry.template[1]])
-    write("[" .. entry.template[1] .. "] ") -- type
-    term.setTextColor(colors.white)
-    write(entry.template[2])                -- template/reason
-
-    entry.deadline = -1
-    entry.source = "H.handleExpiredWarn"
-    entry.from = UUID
-    db.add(entry) --push to db
+        entry.deadline = -1
+        entry.source = "H.handleExpiredWarn"
+        entry.from = UUID
+        db.add(entry) --push to db
 
 
-    sleep(2)
-end, "expired", "warn") -- what did i have in mind for these vars? no idea
-
+        sleep(2)
+    end, "expired", "warn"  -- what did i have in mind for these vars? no idea
+)
 -- boolean getter functions
+---@param item table
+---@param barButtons table
+---@return boolean
 local function isShown(item, barButtons)
     local showPending = barButtons[2].submenu[1].typeData.toggled
     local showHandled = barButtons[2].submenu[2].typeData.toggled
@@ -95,6 +105,17 @@ local function isShown(item, barButtons)
 end
 
 -- main functions
+---@param uuids table All the uuid's of the items in the database
+---@param items table Uuid, item pairs from the db
+---@param expandedUUID string|nil The uuid of the expanded item, nil if none expanded
+---@param expandedFormatData boolean|nil wether the expanded item has its formatData expanded
+---@param sort string string matching one of the keys from the sortFuncs table, contains the string of the item value to sort and then < or > for the order
+---@param scroll number Offset for the items in the db for scrolling. Displaying starts at 1 + scroll
+---@param barButtons table All the buttons in the bottom bar
+---@param selection table Selection created from libs/selectionManager.lua
+---@return string|nil expandedUUID The uuid of the expanded item, nil if none expanded
+---@return boolean expandedFormatData Wether the expanded item has its formatData expanded
+---@return table indexToUUID Table for converting the y position of a click to the uuid fo the clicked item
 local function renderDB(uuids, items, expandedUUID, expandedFormatData, sort, scroll, barButtons, selection)
     if expandedFormatData == nil then expandedFormatData = false end
 
@@ -225,6 +246,9 @@ local function renderDB(uuids, items, expandedUUID, expandedFormatData, sort, sc
 end
 
 local ButtonLib = {}
+---@param button table The button of which to get the label
+---@param subMenu? table The submenu containing the button if applicable, for equal width labels
+---@return string label The label of the button
 ButtonLib.getLabel = function(button, subMenu)
     local prefix = ""
     local sufix = ""
@@ -247,8 +271,11 @@ ButtonLib.getLabel = function(button, subMenu)
     elseif button.type == "menu" then
         return button.label .. " >"
     end
+    return "implement type label please"
 end
 -- if selection:size() == 0 then return false end
+---@param barButtons table All the buttons in the bottom bar
+---@return any barButtons All the buttons in the bottom bar
 local function renderBottomBar(barButtons)
     term.setBackgroundColor(colors.gray)
     local width, height = term.getSize()
@@ -312,7 +339,9 @@ local function renderBottomBar(barButtons)
     term.setBackgroundColor(colors.black)
     return barButtons
 end
-
+---@param buttonMenu table The buttonmenu containing the buttons
+---@param indexList? table List containing indexes to the expanded button. Not 100% sure tbh, wrote this to long ago
+---@return table|nil expandedButton The button in the menu that was expanded or nil if none exist
 local function containsExpandedButton(buttonMenu, indexList)
     if not indexList then indexList = {} end
     local expandedButton
@@ -329,14 +358,20 @@ local function containsExpandedButton(buttonMenu, indexList)
     return nil
 end
 
-local function restoreBackToMain(button, indexList)
-    local buttonMenu
-    for i, v in ipairs(indexList) do
-
-    end
-    return buttonMenu
-end
-
+---@param items table Uuid, item pairs from the db
+---@param indexToUUID table Table for converting the y position of a click to the uuid fo the clicked item
+---@param sort string string matching one of the keys from the sortFuncs table, contains the string of the item value to sort and then < or > for the order
+---@param scroll number Offset for the items in the db for scrolling. Displaying starts at 1 + scroll
+---@param uuids table All the uuid's of the items in the database
+---@param barButtons table All the buttons in the bottom bar
+---@param selection table Selection created from libs/selectionManager.lua
+---@param expandedUUID string|nil The uuid of the expanded item, nil if none expanded
+---@param expandedFormatData boolean wether the expanded item has its formatData expanded
+---@return string|nil expandedUUID The uuid of the expanded item, nil if none expanded
+---@return boolean expandedFormatData Wether the expanded item has its formatData expanded
+---@return string sort  string matching one of the keys from the sortFuncs table, contains the string of the item value to sort and then < or > for the order
+---@return number scroll Offset for the items in the db for scrolling. Displaying starts at 1 + scroll
+---@return table barButtons All the buttons in the bottom bar
 local function captureInputForDB(items, indexToUUID, sort, scroll, uuids, barButtons, selection, expandedUUID,
                                  expandedFormatData)
     local width, height = term.getSize()
@@ -506,7 +541,8 @@ local function captureInputForDB(items, indexToUUID, sort, scroll, uuids, barBut
     end
     return expandedUUID, expandedFormatData, sort, scroll, barButtons
 end
-
+---@param selection table Selection created from libs/selectionManager.lua
+---@return table barButtons
 local function getBarButtons(selection)
     local barButtons
     barButtons = {
@@ -522,9 +558,9 @@ local function getBarButtons(selection)
                     elseif func == nil then
                         error("function from file '/userFacing/selectMessage.lua' is nil but no error was given")
                     end
-                    func()
+                    pcall(func)
                 end,
-            },{
+            }, {
                 label = "Template",
                 click = function()
                     local func, err = loadfile("/userFacing/createTemplate.lua", nil, _ENV)
@@ -639,14 +675,17 @@ local function getBarButtons(selection)
     return barButtons
 end
 
+-- main loop
 local function displayDB()
     -- defaults
     local indexToUUID = {} -- for keeping track of rows and clicks
     local expandedUUID, expandedFormatData = nil, false
     local items, uuids
     -- manage selection
-    selection = require("/libs/selectionManager"):new() -- add an tracking var too the selection to know when too do shit
+    selection = require("/libs/selectionManager"):new() -- add an tracking var to the selection to know when to do shit
     -- vars for sorting
+    ---@param sortFunc function The base function for sorting
+    ---@return function The generated function with extra logic for equal items
     local function sortFuncGen(sortFunc)
         return function(...)
             local a, b = ...

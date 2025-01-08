@@ -1,4 +1,4 @@
-local path = require("../main/makePath.lua")
+local path = require("../main/makePath")
 
 local templateDir = path("templates/")
 -- load and prepare templates
@@ -103,7 +103,7 @@ repeat -- template name
 until valid
 
 local templateFileName = templateType .. templateName .. ".sdoc"
-local templateFilePath = templateDir .. templateFileName
+local templateFilePath = fs.combine(templateDir, templateFileName)
 
 local files = fs.list(path("templates"))
 local baseTemplates = { {}, {} }
@@ -138,5 +138,6 @@ repeat -- template name
     end
 until valid
 
-fs.copy(templateDir .. selectedBaseTemplate .. ".sdoc", templateFilePath)
+fs.copy(fs.combine(templateDir, selectedBaseTemplate .. ".sdoc"), templateFilePath)
+print("launching sword.lua with "..templateFilePath)
 shell.run("sword "..templateFilePath)
