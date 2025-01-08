@@ -113,7 +113,7 @@ local function showTable(loopTable, trackTable, depth, maxDepth)
     if depth == 0 then
         for _, key in ipairs(loopTable) do
             local seperator = type(key) == "string" and "." or ","
-            table.insert(trackTable, { seperator .. key, #key + 3 })
+            table.insert(trackTable, { seperator .. key, #tostring(key) + 3 })
             local value = entry[key]
             write(key)
             write(" = ")
@@ -131,7 +131,7 @@ local function showTable(loopTable, trackTable, depth, maxDepth)
         for key, value in pairs(loopTable) do
             local keyStr = (type(key) == "number") and "[" .. key .. "]" or key
             local seperator = type(key) == "string" and "." or ","
-            local trackStr = trackTable[backtrackI][1] .. seperator .. keyStr
+            local trackStr = trackTable[backtrackI][1] .. seperator .. key
             table.insert(trackTable, { trackStr, depth * 2 + #keyStr + 3 })
 
             write(("  "):rep(depth))
@@ -154,6 +154,8 @@ local function getInput(entry, rowTracking)
     local clickedItem = rowTracking[y]
     if clickedItem[1] == "}" then return false end
 
+    print(clickedItem[1])
+    
     local query = ""
     for typeChar, match in clickedItem[1]:gmatch("([.,])([^.,]*)") do
         if typeChar == "." then
@@ -163,12 +165,16 @@ local function getInput(entry, rowTracking)
         end
         query = query .. match
     end
-    local currentValue = load("return searchingTable" .. query, "=generatedIndexing", "t", { searchingTable = entry })()
-
+    print("LINE 168")
+    local functionTxt = "return searchingTable" .. query
+    print(functionTxt)
+    local currentValue = load(functionTxt, "=generatedIndexing", "t", { searchingTable = entry })()
+    print("LINE 171")
+    
     --print(clickedItem[1])
     term.setCursorPos(clickedItem[2] + 1, y)
     local preparedValue = prepareValue(currentValue)
-    local newValue = read(nil, nil, nil, preparedValue)
+    local newValue = read(nil, nil, nil, tostring(preparedValue))
     term.setTextColor(colors.white)
 
     entry = load("searchingTable" .. query .. " = " .. newValue .. ";return searchingTable", "=generatedIndexing", "t",
