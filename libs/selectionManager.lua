@@ -22,6 +22,7 @@ function Selection:remove(index)
     if index then
         table.remove(self.selected, index)
     else
+---@diagnostic disable-next-line: missing-parameter
         table.insert(self.selected)
     end
 end
@@ -112,7 +113,7 @@ end
 
 
 ---@param amount any The amount of x values too return
----@return number X values of drag
+---@return number ... X values of drag
 function Selection:getDragX(amount)
     if not amount then amount = 1 end
     local dragXs = {}
@@ -123,7 +124,7 @@ function Selection:getDragX(amount)
 end
 
 ---@param amount any The amount of y values too return
----@return number Y Y values of drag
+---@return number ... Y values of drag
 function Selection:getDragY(amount)
     if not amount then amount = 1 end
     local dragYs = {}
@@ -145,7 +146,8 @@ function Selection:endDrag()
     local drag = self.drag
     if not drag then return nil, nil end
     self.drag = nil
-    return table.unpack( drag[#drag] )
+    local latestDrag = drag[#drag]
+    return latestDrag[1], latestDrag[2]
 end
 
 return Selection

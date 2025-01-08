@@ -1,6 +1,8 @@
 {
     "version": 8,
-    "fileLocation": "https://raw.githubusercontent.com/hooded-person/KGinfractions/refs/heads/main/",
+    "fileLocationOnline": "https://raw.githubusercontent.com/hooded-person/KGinfractions/refs/heads/main/",
+    "fileLocation": "http://127.0.0.1:3000/",
+    "containsStartup": true,
     "directories": [
         "completion",
         "database",
@@ -36,7 +38,8 @@
     ],
     "modules": {
         "templates": {
-            "name": "example templates",
+            "name": "Example templates",
+            "description": "Some example templates for infractions",
             "dirs": [
                 "templates"
             ],
@@ -47,6 +50,7 @@
         },
         "completion.username": {
             "name": "Username completion",
+            "description": "The completion module for usernames.\nLogs users that join the world if a player detector from Advanced Peripherals is connected or the event 'playerJoin' is fired",
             "dirs": [
                 "completion",
                 "completion/username"
@@ -58,6 +62,7 @@
         },
         "completion.deadline": {
             "name": "Deadline completion",
+            "description": "The completion module for setting deadlines (ex. '3d' or '1w')",
             "dirs": [
                 "completion",
                 "completion/deadline"
@@ -67,19 +72,8 @@
             ]
         },
         "examples.testData": {
-            "name": "test data for database",
-            "dirs": [
-                "database"
-            ],
-            "files": [
-                "database/data.lon"
-            ]
-        },
-        "examples.testUsers": {
-            "name": "test users for user autocompletion",
-            "dependencies": [
-                "completion.username"
-            ],
+            "name": "Example data for database",
+            "description":"Some dummy data for in the database so you can see how it looks",
             "dirs": [
                 "completion"
             ],
