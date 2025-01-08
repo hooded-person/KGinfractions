@@ -1,3 +1,4 @@
+-- v: 1.1
 local db = require "/database"
 
 local args = { ... }
@@ -167,8 +168,13 @@ local function getInput(entry, rowTracking)
     local newValue = read(nil, nil, nil, tostring(preparedValue))
     term.setTextColor(colors.white)
 
-    entry = load("searchingTable" .. query .. " = " .. newValue .. ";return searchingTable", "=generatedIndexing", "t",
-        { searchingTable = entry })()
+    local func, err = load("searchingTable" .. query .. " = " .. newValue .. ";return searchingTable", "=generatedIndexing", "t",
+        { searchingTable = entry })
+    if err or func == nil then
+        error(err)
+    else
+        entry = func()
+    end
     return true
 end
 
