@@ -159,12 +159,14 @@ local function getJsonData(url)
     local headers = responseData.headers
     local body = responseData.body
 
-    assert(
-        string.lower(headers["Content-Type"]) == "text/plain; charset=utf-8" or
-        string.lower(headers["Content-Type"]) == "application/json; charset=utf-8",
-        "unexpected content type,\nResponse header 'Content-Type' did not match 'text/plain; charset=utf-8', got:\n" ..
-        headers["Content-Type"]
-    );
+    if headers["Content-Type"] then
+        assert(
+            string.lower(headers["Content-Type"]) == "text/plain; charset=utf-8" or
+            string.lower(headers["Content-Type"]) == "application/json; charset=utf-8",
+            "unexpected content type,\nResponse header 'Content-Type' did not match 'text/plain; charset=utf-8', got:\n" ..
+            headers["Content-Type"]
+        );
+    end
 
     local jsonData = textutils.unserialiseJSON(body);
     assert(jsonData ~= nil, "failed to unserialise response file");
@@ -244,10 +246,10 @@ local function installItems(directories, files, fileSource)
     end
 end
 
---[[
+
 -- always install
 installItems(prgmFiles.directories, prgmFiles.files, prgmFiles.fileLocation)
-]]
+
 -- install prompt
 local types = {
     external = {
@@ -486,7 +488,6 @@ local function promptInstallList(dataList, dataType)
 
 end
 promptInstallList(modules, "module")
-
 
 -- Install startup file and move existing one to startupScripts/
 if fs.exists("startup.lua") then
