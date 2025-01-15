@@ -159,12 +159,14 @@ local function getJsonData(url)
     local headers = responseData.headers
     local body = responseData.body
 
-    assert(
-        string.lower(headers["Content-Type"]) == "text/plain; charset=utf-8" or
-        string.lower(headers["Content-Type"]) == "application/json; charset=utf-8",
-        "unexpected content type,\nResponse header 'Content-Type' did not match 'text/plain; charset=utf-8', got:\n" ..
-        headers["Content-Type"]
-    );
+    if headers["Content-Type"] then
+        assert(
+            string.lower(headers["Content-Type"]) == "text/plain; charset=utf-8" or
+            string.lower(headers["Content-Type"]) == "application/json; charset=utf-8",
+            "unexpected content type,\nResponse header 'Content-Type' did not match 'text/plain; charset=utf-8', got:\n" ..
+            headers["Content-Type"]
+        );
+    end
 
     local jsonData = textutils.unserialiseJSON(body);
     assert(jsonData ~= nil, "failed to unserialise response file");
@@ -244,7 +246,7 @@ local function installItems(directories, files, fileSource)
     end
 end
 
---[[
+
 -- always install
 installItems(prgmFiles.directories, prgmFiles.files, prgmFiles.fileLocation)
 
@@ -271,10 +273,6 @@ local types = {
         end
     }
 }
----@param data table
----@param dataType string|table
-local function promptInstall(data, dataType)
-    clearTerm()
 
 local function renderPromptInstall(data, dataType)
     if type(dataType) == "string" then
@@ -484,7 +482,7 @@ local function genLine(processData, data, dataType)
     return startSnapTxt..filler..endSnapTxt
 end
 ---@param dataList table List containing data items
----@param dataType table Type table for all data items in dataList
+---@param dataType string|table Type table for all data items in dataList
 ---@return nil
 local function promptInstallList(dataList, dataType)
 
