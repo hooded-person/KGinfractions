@@ -9,8 +9,8 @@ local tStartups = {}
 local isSpecialStartup = {}
 
 local function doIgnore(filePath)
-    local h = fs.open(filePath)
-    for _i=1,#nameThing do 
+    local h = fs.open(filePath,"r")
+    for i=1,#nameThing do 
         local c  = nameThing:sub(i,i)
         if h.read() ~= h then return false end
     end
