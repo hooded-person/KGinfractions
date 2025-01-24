@@ -1,4 +1,4 @@
-local makePath = require "main.makePath"
+local makePath = require "../main/makePath"
 local db = {}
 db._INTERNAL = {}
 db.dirPath = "database"
@@ -41,7 +41,7 @@ db._INTERNAL.base = function(coreFunc,saveData)
             local currentBits = fs.getSize(makePath("/database/data.lon"))
             local newBits = #data - currentBits
             newBits = newBits > 500 and newBits or 500
-            if newBits < remainingBits then 
+            if newBits > remainingBits then 
                 error("Not enough space for saving db\n"..remainingBits.." was available but needed "..newBits.." ("..(#data > 500 and #data or 500).." total)") 
             end
             
