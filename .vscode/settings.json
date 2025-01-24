@@ -2,7 +2,8 @@
     "Lua.diagnostics.disable": [
         "undefined-field",
         "deprecated",
-        "redundant-value"
+        "redundant-value",
+        "unknown-diag-code"
     ],
     "Lua.diagnostics.globals": [
         "bit",

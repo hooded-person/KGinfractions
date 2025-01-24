@@ -3,7 +3,9 @@
         "disable": [
             "undefined-global",
             "undefined-field",
-            "deprecated"
+            "deprecated",
+            "access-invisible",
+            "need-check-nil"
         ],
         "globals": [
             "bit",
