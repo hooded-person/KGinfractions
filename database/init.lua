@@ -1,3 +1,4 @@
+local makePath = require "main.makePath"
 local db = {}
 db._INTERNAL = {}
 db.dirPath = "database"
@@ -35,6 +36,15 @@ db._INTERNAL.base = function(coreFunc,saveData)
         local result = { coreFunc(data, table.unpack(args)) }
         if saveData then
             data = textutils.serialise(data)
+
+            local remainingBits = fs.getFreeSpace(makePath("/database/"))
+            local currentBits = fs.getSize(makePath("/database/data.lon"))
+            local newBits = #data - currentBits
+            newBits = newBits > 500 and newBits or 500
+            if newBits < remainingBits then 
+                error("Not enough space for saving db\n"..remainingBits.." was available but needed "..newBits.." ("..(#data > 500 and #data or 500).." total)") 
+            end
+            
             local h = fs.open(db.dataPath,"w")
             h.write(data)
             h.close()
@@ -56,7 +66,7 @@ db.insert = db._INTERNAL.base(function (data, newdata, position)
     end
 end)
 
----@param position number the position for the data too remove
+---@param position integer the position for the data too remove
 ---@return any the removed value
 db.remove = db._INTERNAL.base(function (data, position)
     assert( type(data)=="table", "data is not a table, internal error or some")
