@@ -38,7 +38,11 @@ end
 ---@return boolean valid Wether the string is valid
 ---@return string|nil invalidChar The character that was invalid
 local function checkValidType(str, additionalValidChars)
-    local validChars = "abcdefghijklmnopqrstuvwxyz0123456789" .. (additionalValidChars or "")
+    local alphabetic = "abcdefghijklmnopqrstuvwxyz"
+    alphabetic = alphabetic .. alphabetic:upper()
+    local numerical = "0123456789"
+    local alphanumerical = alphabetic .. numerical
+    local validChars = alphanumerical .. (additionalValidChars or "")
     for i = 1, #str do
         if not validChars:find(str:sub(i, i), 1, true) then
             return false, str:sub(i, i)
@@ -139,5 +143,5 @@ repeat -- template name
 until valid
 
 fs.copy(fs.combine(templateDir, selectedBaseTemplate .. ".sdoc"), templateFilePath)
-print("launching sword.lua with "..templateFilePath)
-shell.run("sword "..templateFilePath)
+print("launching sword.lua with " .. templateFilePath)
+shell.run("sword " .. templateFilePath)
