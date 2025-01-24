@@ -1,4 +1,6 @@
 -- v: 1.1
+error("Due to risks of corrupting the db this feature has been disabled")
+
 local db = require "/database"
 
 local args = { ... }
@@ -108,8 +110,8 @@ end
 ---@param maxDepth? number
 ---@return nil
 local function showTable(loopTable, trackTable, depth, maxDepth)
-    if depth == nil then depth = 0 end
-    if maxDepth == nil then maxDepth = -1 end
+    depth = depth or 0
+    maxDepth = maxDepth or -1
 
     if depth == 0 then
         for _, key in ipairs(loopTable) do
@@ -135,7 +137,7 @@ local function showTable(loopTable, trackTable, depth, maxDepth)
             local trackStr = trackTable[backtrackI][1] .. seperator .. key
             table.insert(trackTable, { trackStr, depth * 2 + #keyStr + 3 })
 
-            write(("  "):rep(depth))
+            write(("  "):rep(depth or 0))
             write(keyStr)
             write(" = ")
             if type(value) == "table" then
