@@ -98,6 +98,12 @@ errors.fatal = function (err)
     sleep(3)
     abort()
 end
+errors.err = function (err)
+    term.setTextColor(colors.red)
+    print(err);
+    term.setTextColor(colors.white)
+    sleep(3)
+end
 
 
 ---@param filePath string Path of new file
@@ -126,11 +132,16 @@ local function warn(err)
     print(err)
     term.setTextColor(oldColor)
 end
-
-local function getUrl(url)
+---@param url string
+---@param notFatal? boolean If false errors during getting of url will abort
+---@return boolean success
+---@return table responseData
+local function getUrl(url, notFatal)
+    local errSystem = notFatal and errors.err or errors.fatal
     local canRequest, err = http.checkURL(url);
     if not canRequest then
-        errors.fatal(err);
+        errSystem(err);
+        return false, {error = err}
     end;
     local response, err, failResponse = http.get({
         url = url,
@@ -138,10 +149,12 @@ local function getUrl(url)
     if err and failResponse then
         response = failResponse;
     elseif err and not failResponse then
-        errors.fatal(err)
+        errSystem(err)
+        return false, {error = err}
     end;
     if response == nil then
-        errors.fatal(err)
+        errSystem(err)
+        return false, {error = err}
     end
     local statusCode = response.getResponseCode();
     local headers = response.getResponseHeaders();
@@ -149,7 +162,12 @@ local function getUrl(url)
     response.close();
     if err then -- show http errors (will be double up with github, ex. "HTTP 404\n 404: not found")
         local errMsg = err .. "\nHTTP " .. statusCode .. " " .. url .. "\n" .. body;
-        errors.fatal(errMsg);
+        errSystem(errMsg);
+        return false, {
+            statusCode = statusCode,
+            headers = headers,
+            body = body
+        };
     end;
     return not err, {
         statusCode = statusCode,
@@ -164,7 +182,6 @@ end
 ---@return table responseData full response data
 local function getJsonData(url)
     local success, responseData = getUrl(url)
-    local statusCode = responseData.statusCode
     local headers = responseData.headers
     local body = responseData.body
 
@@ -184,10 +201,11 @@ end
 
 ---@param url string The url from which to download the file
 ---@param filePath string The filepath to which to downlaod the file
----@param notify? boolean Wether to print what is happenening (lot of downloads after each other otherwise looks wierd)
-local function downloadFile(url, filePath, notify)
-    local success, responseData = getUrl(url)
-    local headers = responseData.headers
+---@param notify? boolean Wether to print what is happenening (lot of downloads after each other otherwise looks weird)
+---@param notFatal? boolean Wether errors during download of this file are fatal
+local function downloadFile(url, filePath, notify,notFatal)
+    local success, responseData = getUrl(url,notFatal)
+    if not success then return false end
     local body = responseData.body
 
     clearTerm()
@@ -248,7 +266,8 @@ settings.save()
 ---@param directories table
 ---@param files table
 ---@param fileSource string Start of the url to which requested files will be appended (for getting from github: 'https://raw.githubusercontent.com/USER/REPO//refs/heads/BRANCH/')
-local function installItems(directories, files, fileSource)
+---@param notFatal? boolean Wether errors during download of this file are fatal
+local function installItems(directories, files, fileSource,notFatal)
     for _, directory in ipairs(directories) do
         local forceRoot = directory:sub(1,1) == "/"
         local dirPath = (forceRoot and "" or settings.get("KGinfractions.root")) .. directory
@@ -257,7 +276,7 @@ local function installItems(directories, files, fileSource)
     for _, file in ipairs(files) do
         local forceRoot = file:sub(1,1) == "/"
         local filePath = (forceRoot and "" or settings.get("KGinfractions.root")) .. file
-        downloadFile(fileSource .. file, filePath, true)
+        downloadFile(fileSource .. file, filePath, true, notFatal)
     end
 end
 
@@ -661,7 +680,7 @@ local function promptInstallList(dataList, dataType)
     for i = 1, #processData do
         local id = lineToId[i]
         local item = dataList[id]
-        installItems(item.dirs, item.files, item.fileSource or prgmFiles.fileLocation)
+        installItems(item.dirs, item.files, item.fileSource or prgmFiles.fileLocation, true)
     end
 end
 
