@@ -1,7 +1,6 @@
 {
     "version": 8,
-    "fileLocationOnline": "https://raw.githubusercontent.com/hooded-person/KGinfractions/refs/heads/main/",
-    "fileLocation": "http://127.0.0.1:3000/",
+    "fileLocation": "https://raw.githubusercontent.com/hooded-person/KGinfractions/refs/heads/main/",
     "containsStartup": true,
     "directories": [
         "completion",
