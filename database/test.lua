@@ -1,4 +1,4 @@
-local db = require "/database/addProcessing"
+local db = require "addProcessing"
 
 local toProcess = {
     time = os.epoch("utc")/1000,

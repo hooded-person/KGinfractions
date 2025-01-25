@@ -1,4 +1,15 @@
-local db = require "/database"
+---@param ... string strings for paths to combine
+---@return string
+local function combinePath(...)
+    settings.define("KGinfractions.root", {
+        description = "The program root",
+        default = "/",
+        type = "string"
+    })
+    local projectRoot = settings.get("KGinfractions.root")
+    return "/"..fs.combine(projectRoot, ...)
+end
+local db = require(combinePath("database"))
 
 --[[
 {
@@ -21,7 +32,7 @@ local db = require "/database"
 }
 --]]
 local function getToken()
-    local h = fs.open("/tokens/webhook.token", "r")
+    local h = fs.open("../tokens/webhook.token", "r")
     local token
     if h then
         token = h.readAll()

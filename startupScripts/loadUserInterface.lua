@@ -3,6 +3,12 @@ settings.define("KGinfractions.startup", {
     default = true,
     type = "boolean"
 })
+settings.define("KGinfractions.root", {
+    description = "The program root",
+    default = "/",
+    type = "string"
+})
 if settings.get("KGinfractions.startup") then
-    shell.run("fg userFacing/viewDatabase.lua")
+    local projectRoot = settings.get("KGinfractions.root")
+    shell.run("fg " .. fs.combine(projectRoot, "userFacing/viewDatabase.lua"))
 end

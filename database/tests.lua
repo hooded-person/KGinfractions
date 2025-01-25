@@ -1,5 +1,5 @@
 
-local db = require "/database/addProcessing"
+local db = require "addProcessing"
 
 local checks = {}
 checks.table = function(a,b)

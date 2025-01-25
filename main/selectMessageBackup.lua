@@ -1,7 +1,7 @@
 ---@diagnostic disable: missing-parameter
 local templateDir = "templates/"
 if templateDir:sub(-1) ~= "/" then templateDir = templateDir .. "/" end
-local spclib = require("/libs/spclib")
+local spclib = require("../libs/spclib")
 local printerHost = 15
 -- use debug() instead of print() for debugging for easier removal(or disabling) of the statments after debugging is done
 local debug = print
@@ -124,7 +124,7 @@ local function getFormatData(template)
                 compFunc = nil
             else
                 print( "completion/"..compFuncPath )
-                compFunc = require("/completion/"..compFuncPath)
+                compFunc = require("completion/"..compFuncPath)
             end
         end
 
@@ -133,7 +133,7 @@ local function getFormatData(template)
             formatData[var] = getCurrentDate()
         elseif var == "deadline" then
             print("enter deadline (number+'m/h/d/w')(default '1w')")
-            local input = read(nil,nil,require "/completion/deadline")
+            local input = read(nil,nil,require "completion/deadline")
             if input == "" then
                 local x, y = term.getCursorPos()
                 term.setCursorPos(x, y - 1)
@@ -274,7 +274,7 @@ if amount == 0 then
     print("[WARN] amount is 0, printing 2"); amount = 2
 end
 
-local db = require("/database/addProcessing")
+local db = require("../database/addProcessing")
 local success, result = db.process({
     template = template,
     formatData = formatData,

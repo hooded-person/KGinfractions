@@ -1,7 +1,7 @@
 local version = 4
 
 print("testing installer")
-
+shell.setAlias("reinstall","startupScripts/startup.lua")
 
 local fileHost = "https://raw.githubusercontent.com/";
 local repoLoc = "hooded-person".."/".."KGinfractions";

@@ -49,7 +49,7 @@ repeat
     print(i)
     if loop then sleep(0) end
 until not loop
-local spclib = require("/libs/spclib")
+local spclib = require("../libs/spclib")
 local printerHost = 15
 
 rednet.open("back")

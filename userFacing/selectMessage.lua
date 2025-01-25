@@ -132,7 +132,7 @@ local function getFormatData(template)
                 compFunc = nil
             else
                 print("completion/" .. compFuncPath)
-                compFunc = require("/completion/" .. compFuncPath)
+                compFunc = require("completion/" .. compFuncPath)
             end
         end
 
@@ -141,7 +141,7 @@ local function getFormatData(template)
             formatData[var] = getCurrentDate()
         elseif var == "deadline" then
             print("enter deadline (number+'m/h/d/w')(default '1w')")
-            local input = read(nil, nil, require "/completion/deadline")
+            local input = read(nil, nil, require "completion/deadline")
             if input == "" then
                 local x, y = term.getCursorPos()
                 term.setCursorPos(x, y - 1)
@@ -279,7 +279,7 @@ function main(template, formatData)
         print("[WARN] amount is 0, printing 2"); amount = 2
     end
 
-    local db = require("/database/addProcessing")
+    local db = require("../database/addProcessing")
     local success, result = db.process({
         template = template,
         formatData = formatData,
@@ -310,4 +310,4 @@ local template = templates[templateList["type"][selectedType]][selectedTemp]
 
 local formatData = getFormatData(template)
 
-require("/main/printMessage")(template, formatData, "M.selectMessage.lua")
+require("../main/printMessage")(template, formatData, "M.selectMessage.lua")

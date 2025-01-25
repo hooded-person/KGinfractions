@@ -1,4 +1,4 @@
-local spclib = require("/libs/spclib")
+local spclib = require("../libs/spclib")
 local printerHost = 3
 
 local templateDir = "templates/"
@@ -43,7 +43,7 @@ return function(template, formatData, source, printOnly)
     local title = "\160c" .. color -- color
         .. "\160ac"              -- align center
     -- get alphabet table
-    local alphabet = require("/main/alphabet")
+    local alphabet = require("./alphabet")
     title = title .. alphabet(template[1])
 
     title = title .. "\160cf\n"
@@ -57,7 +57,7 @@ return function(template, formatData, source, printOnly)
     end
     local success, result
     if processDB then
-        local db = require("/database/addProcessing")
+        local db = require("../database/addProcessing")
         success, result = db.process({
             template = template,
             formatData = formatData,

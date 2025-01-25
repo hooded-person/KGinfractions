@@ -89,6 +89,15 @@ abortMeta.__call = function() -- main abort function
     error("")
 end
 setmetatable(abort, abortMeta)
+local errors = {}
+errors.fatal = function (err)
+    term.setTextColor(colors.red)
+    print(err);
+    print("Installation will be aborted")
+    term.setTextColor(colors.white)
+    sleep(3)
+    abort()
+end
 
 
 ---@param filePath string Path of new file
@@ -121,7 +130,7 @@ end
 local function getUrl(url)
     local canRequest, err = http.checkURL(url);
     if not canRequest then
-        error(err);
+        errors.fatal(err);
     end;
     local response, err, failResponse = http.get({
         url = url,
@@ -129,10 +138,10 @@ local function getUrl(url)
     if err and failResponse then
         response = failResponse;
     elseif err and not failResponse then
-        error(err)
+        errors.fatal(err)
     end;
     if response == nil then
-        error(err)
+        errors.fatal(err)
     end
     local statusCode = response.getResponseCode();
     local headers = response.getResponseHeaders();
@@ -140,7 +149,7 @@ local function getUrl(url)
     response.close();
     if err then -- show http errors (will be double up with github, ex. "HTTP 404\n 404: not found")
         local errMsg = err .. "\nHTTP " .. statusCode .. " " .. url .. "\n" .. body;
-        error(errMsg);
+        errors.fatal(errMsg);
     end;
     return not err, {
         statusCode = statusCode,
@@ -218,11 +227,14 @@ repeat
         error("install aborted")
     elseif fs.isReadOnly(projectRoot) then
         warn("Path is read only")
-    elseif projectRoot ~= "/" then
-        warn("Currently only installing in root is supported")
+        -- elseif projectRoot ~= "/" then
+        --     warn("Currently only installing in root is supported")
     else
-        success = true
+        projectRoot = shell.resolve(projectRoot)
         projectRoot = projectRoot .. (projectRoot:sub(-1) == "/" and "" or "/")
+        print("Setting project root to '" .. projectRoot .. "', is this correct (y/n)")
+        local input = read():lower()
+        success = input == "y" or input == "yes" or input == "correct"
     end
 until success
 settings.define("KGinfractions.root", {
@@ -238,11 +250,14 @@ settings.save()
 ---@param fileSource string Start of the url to which requested files will be appended (for getting from github: 'https://raw.githubusercontent.com/USER/REPO//refs/heads/BRANCH/')
 local function installItems(directories, files, fileSource)
     for _, directory in ipairs(directories) do
-        local dirPath = settings.get("KGinfractions.root") .. directory
+        local forceRoot = directory:sub(1,1) == "/"
+        local dirPath = (forceRoot and "" or settings.get("KGinfractions.root")) .. directory
         makeDir(dirPath)
     end
     for _, file in ipairs(files) do
-        downloadFile(fileSource .. file, file, true)
+        local forceRoot = file:sub(1,1) == "/"
+        local filePath = (forceRoot and "" or settings.get("KGinfractions.root")) .. file
+        downloadFile(fileSource .. file, filePath, true)
     end
 end
 
@@ -580,7 +595,7 @@ local function render(processData, dataList, dataType)
     local w, h = term.getSize()
     paintutils.drawLine(1, 1, w, 1, colors.gray)
     local confirm = " done "
-    term.setCursorPos(w-#confirm+1, 1)
+    term.setCursorPos(w - #confirm + 1, 1)
     term.setTextColor(colors.black)
     term.setBackgroundColor(colors.lightGray)
     print(confirm)
@@ -591,9 +606,9 @@ local function render(processData, dataList, dataType)
     for id, data in pairs(dataList) do
         table.insert(lineToId, id)
         local _, y = term.getCursorPos()
-        local itemData = processData[y-1]
+        local itemData = processData[y - 1]
         local line, itemData = genLine(itemData, processData.info.index == id, data, dataType)
-        processData[y-1] = itemData
+        processData[y - 1] = itemData
         print(line)
     end
     if processData.info.index then
@@ -617,14 +632,16 @@ local function getInput(processData, lineToId)
             else
                 processData.info = { index = nil }
             end
-        elseif y == 1 and x >= w-4 then
-            return processData, true
+        elseif y == 1 then -- catch all clicks on the top bar
+            if x >= w - 4 then 
+                return processData, true
+            end
         elseif (y - 1) > (#processData) then
             -- do nothing and wait for return
         elseif x >= 1 and x <= 3 then
-            processData[y-1].checked = not processData[y-1].checked
+            processData[y - 1].checked = not processData[y - 1].checked
         elseif x >= w - 2 and x <= w then
-            processData.info = { index = lineToId[y-1] }
+            processData.info = { index = lineToId[y - 1] }
         end
     end
     return processData
@@ -641,7 +658,7 @@ local function promptInstallList(dataList, dataType)
         processData, done = getInput(processData, lineToId)
         sleep(0)
     end
-    for i=1,#processData do 
+    for i = 1, #processData do
         local id = lineToId[i]
         local item = dataList[id]
         installItems(item.dirs, item.files, item.fileSource or prgmFiles.fileLocation)
@@ -662,7 +679,8 @@ downloadFile(prgmFiles.fileLocation .. "startup.lua", "startup.lua")
 clearTerm()
 
 -- Prompt entering webhook token
-write("This application supports sending messages to a discord webhook.\nPlease enter a webhook token or leave empty (token will be stored ")
+write(
+"This application supports sending messages to a discord webhook.\nPlease enter a webhook token or leave empty (token will be stored ")
 term.setTextColor(colors.orange)
 write("UNENCRYPTED")
 term.setTextColor(colors.white)
@@ -671,10 +689,10 @@ local validToken = false
 local httpSuccess, reason, token
 repeat
     if reason then
-        print("Invalid token: "..reason)
+        print("Invalid token: " .. reason)
     end
     token = read("*")
-    if token ~= "" then 
+    if token ~= "" then
         httpSuccess, reason = http.checkURL(token)
     end
     validToken = (token == "") or httpSuccess
@@ -683,14 +701,15 @@ if token ~= "" then
     local response = http.get(token)
     local body = response.readAll()
     local webhook = textutils.unserialiseJSON(body)
-    print("Found webhook with name '"..webhook.name.."'")
+    print("Found webhook with name '" .. webhook.name .. "'")
 
     local body = {
         content = textutils.json_null,
         embeds = {
             {
                 title = "Successfully added webhook token",
-                description = "Webhook was successfully added to your KGinfractions instance.\n-# If this wasn't you, you should probably remake your webhook token",
+                description =
+                "Webhook was successfully added to your KGinfractions instance.\n-# If this wasn't you, you should probably remake your webhook token",
                 color = colors.packRGB(term.getPaletteColor(colors.lime))
             }
         },
@@ -707,7 +726,7 @@ if token ~= "" then
     })
     print("Send a message to your webhook, check the channel it resides in to see if it was successfull")
 
-    local h = fs.open(projectRoot.."/tokens/webhook.token","w")
+    local h = fs.open(projectRoot .. "/tokens/webhook.token", "w")
     h.write(token)
     h.close()
     print("Webhook token was added to file")

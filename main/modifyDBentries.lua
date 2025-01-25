@@ -1,7 +1,7 @@
 -- v: 1.1
 error("Due to risks of corrupting the db this feature has been disabled")
 
-local db = require "/database"
+local db = require "../database"
 
 local args = { ... }
 assert(#args <= 1,
@@ -28,7 +28,7 @@ else
         looped = true
     until input == "y" or input == "n"
     if input == "y" then
-        shell.run(require("/main/makePath")("/userFacing/viewDatabase"))
+        shell.run(require("./makePath")("/userFacing/viewDatabase"))
     end
     error("")
 end

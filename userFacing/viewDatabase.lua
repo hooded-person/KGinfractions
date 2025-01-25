@@ -1,4 +1,4 @@
-local db = require "/database/addProcessing"
+local db = require "../database/addProcessing"
 
 -- vars
 local selection, running
@@ -639,7 +639,7 @@ local function getBarButtons(selection)
                         local entry = db.get(uuid)
                         local template = loadfile("/main/getTemplate.lua")("-a", entry.template[1], entry.template[2])
                         local formatData = entry.formatData
-                        require("/main/printMessage")(template, formatData, "M.re-print", true)
+                        require("../main/printMessage")(template, formatData, "M.re-print", true)
                     end
                     selection:clear()
                 end,
@@ -682,7 +682,7 @@ local function displayDB()
     local expandedUUID, expandedFormatData = nil, false
     local items, uuids
     -- manage selection
-    selection = require("/libs/selectionManager"):new() -- add an tracking var to the selection to know when to do shit
+    selection = require("../libs/selectionManager"):new() -- add an tracking var to the selection to know when to do shit
     -- vars for sorting
     ---@param sortFunc function The base function for sorting
     ---@return function The generated function with extra logic for equal items

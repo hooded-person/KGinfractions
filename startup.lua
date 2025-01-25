@@ -12,7 +12,7 @@ local function doIgnore(filePath)
     local h = fs.open(filePath,"r")
     for i=1,#nameThing do 
         local c  = nameThing:sub(i,i)
-        if h.read() ~= h then return false end
+        if h.read() ~= c then return false end
     end
     return true
 end
@@ -55,8 +55,12 @@ end
 
 if tStartups then
     for _, v in pairs(tStartups) do
+        print("Checking "..v)
         if not doIgnore(v) then
+            print("Executing "..v)
             shell.run(v)
+        else
+            print("Ignored "..v)
         end
     end
 end
