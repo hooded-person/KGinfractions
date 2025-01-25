@@ -72,8 +72,19 @@
             ]
         },
         "examples.testData": {
-            "name": "Example data for database",
-            "description":"Some dummy data for in the database so you can see how it looks",
+            "name": "Test data for database",
+            "dirs": [
+                "database"
+            ],
+            "files": [
+                "database/data.lon"
+            ]
+        },
+        "examples.testUsers": {
+            "name": "Test users for user autocompletion",
+            "dependencies": [
+                "completion.username"
+            ],
             "dirs": [
                 "completion"
             ],
