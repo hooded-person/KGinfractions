@@ -37,15 +37,28 @@
         "userFacing/viewDatabase.lua"
     ],
     "modules": {
-        "templates": {
-            "name": "Example templates",
-            "description": "Some example templates for infractions",
+        "boilerplateTemplates": {
+            "name": "Boilerplate templates",
+            "description": "Some boilerplate templates for infractions",
             "dirs": [
                 "templates"
             ],
             "files": [
                 "templates/hideTemplateShop.sdoc",
                 "templates/hideTemplateStaff.sdoc"
+            ]
+        },
+        "templates": {
+            "name": "Starter templates",
+            "description": "Some templates for simple infractions",
+            "dirs": [
+                "templates"
+            ],
+            "files": [
+                "templates/warnNoStock.sdoc",
+                "templates/warnLaggyFarm.sdoc",
+                "templates/evicNoStock.sdoc",
+                "templates/evicLaggyFarm.sdoc"
             ]
         },
         "completion.username": {
