@@ -465,13 +465,6 @@ end
 --]]
 
 -- handle optional modules/templates
-local modules = prgmFiles.modules
-for id, moduleData in pairs(modules) do
-    promptInstall(moduleData, "module")
-end
---]]
-
--- new module system with checkboxes
 ---@param processData table
 ---@param infoOpened boolean
 ---@param data table
@@ -654,6 +647,8 @@ local function promptInstallList(dataList, dataType)
         installItems(item.dirs, item.files, item.fileSource or prgmFiles.fileLocation)
     end
 end
+
+local modules = prgmFiles.modules
 promptInstallList(modules, "module")
 
 -- Install startup file and move existing one to startupScripts/
@@ -663,6 +658,61 @@ if fs.exists("startup.lua") then
     print("Moved old startup.lua to startupScripts/startup.lua")
 end
 downloadFile(prgmFiles.fileLocation .. "startup.lua", "startup.lua")
+
+clearTerm()
+
+-- Prompt entering webhook token
+write("This application supports sending messages to a discord webhook.\nPlease enter a webhook token or leave empty (token will be stored ")
+term.setTextColor(colors.orange)
+write("UNENCRYPTED")
+term.setTextColor(colors.white)
+print(" on this computer)")
+local validToken = false
+local httpSuccess, reason, token
+repeat
+    if reason then
+        print("Invalid token: "..reason)
+    end
+    token = read("*")
+    if token ~= "" then 
+        httpSuccess, reason = http.checkURL(token)
+    end
+    validToken = (token == "") or httpSuccess
+until validToken
+if token ~= "" then
+    local response = http.get(token)
+    local body = response.readAll()
+    local webhook = textutils.unserialiseJSON(body)
+    print("Found webhook with name '"..webhook.name.."'")
+
+    local body = {
+        content = textutils.json_null,
+        embeds = {
+            {
+                title = "Successfully added webhook token",
+                description = "Webhook was successfully added to your KGinfractions instance.\n-# If this wasn't you, you should probably remake your webhook token",
+                color = colors.packRGB(term.getPaletteColor(colors.lime))
+            }
+        },
+        attachments = textutils.empty_json_array
+    }
+    -- make the request
+    local res, success, failRes = http.post({
+        url = token,
+        method = "POST",
+        headers = {
+            ["content-type"] = "application/json"
+        },
+        body = textutils.serialiseJSON(body)
+    })
+    print("Send a message to your webhook, check the channel it resides in to see if it was successfull")
+
+    local h = fs.open(projectRoot.."/tokens/webhook.token","w")
+    h.write(token)
+    h.close()
+    print("Webhook token was added to file")
+    sleep(3)
+end
 
 -- prompt running UI on startup
 settings.define("KGinfractions.startup", {
