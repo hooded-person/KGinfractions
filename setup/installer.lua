@@ -3,7 +3,7 @@
 ---@param bgColor? number
 ---@param x? number
 ---@param y? number
-local function clearTerm(fgColor, bgColor,x,y)
+local function clearTerm(fgColor, bgColor, x, y)
     fgColor = fgColor or colors.white
     bgColor = bgColor or colors.black
     term.setTextColor(colors.white)
@@ -344,10 +344,13 @@ local function renderPromptInstall(data, dataType)
     end
     if data.thisDevice or dataType.alwaysThisDevice then
         print("Would you like to install this " .. dataType.name .. "?")
-    else 
+    else
         local instructions = data.instruction
-        local instructionText = (instructions.type == "website" and " at:\n"..instructions.url) or (instructions.type == "text" and ":\n"..instructions.description)
-        print("This "..dataType.name.." has to be installed on a diferent device, please follow the install instructions"..instructionText)
+        local instructionText = (instructions.type == "website" and " at:\n" .. instructions.url) or
+            (instructions.type == "text" and ":\n" .. instructions.description)
+        print("This " ..
+            dataType.name ..
+            " has to be installed on a diferent device, please follow the install instructions" .. instructionText)
     end
     local w, h = term.getSize()
     local x, y = term.getCursorPos()
@@ -453,7 +456,7 @@ local function promptInstall(data, dataType)
     until success
 end
 
--- handle external items
+--[[ handle external items
 local externals = prgmFiles.external
 for _, external in ipairs(externals) do
     promptInstall(external, "external")
@@ -462,30 +465,194 @@ end
 --]]
 
 -- handle optional modules/templates
-local modules = prgmFiles.modules
+local modules = prgmFiles.modules --[[
 for id, moduleData in pairs(modules) do
     promptInstall(moduleData, "module")
 end
+--]]
 
 -- new module system with checkboxes
 ---@param processData table
+---@param infoOpened boolean
 ---@param data table
 ---@param dataType table|string
-local function genLine(processData, data, dataType)
-    local w,h = term.getSize()
+local function genLine(processData, infoOpened, data, dataType)
+    local w, h = term.getSize()
+    processData = processData or {}
+    processData.checked = processData.checked or false
 
-    local checkedTxt = "["..processData.checked and "x" or " ".."]"
-    local infoBtn = processData.infoOpen and "[i]" or "(i)"
-    local startSnapTxt = checkedTxt.." "..data.name
+    local checkedTxt = "[" .. (processData.checked and "x" or " ") .. "]"
+    local infoBtn = infoOpened and "[i]" or "(i)"
+    local startSnapTxt = checkedTxt .. " " .. data.name
     local endSnapTxt = infoBtn
-    local filler = (" "):rep(w-#startSnapTxt-#endSnapTxt)
-    return startSnapTxt..filler..endSnapTxt
+    local filler = (" "):rep(w - #startSnapTxt - #endSnapTxt)
+    return startSnapTxt .. filler .. endSnapTxt, processData
+end
+---@param data table
+---@param processDataInfo table
+---@return nil
+local function renderInfo(data, processDataInfo)
+    local w, h = term.getSize()
+    local infoW, infoH = w / 3 * 2, h / 3 * 2
+    local infoX1, infoY1 = w / 6, h / 6 + 1
+    local infoX2, infoY2 = infoX1 + infoW, infoY1 + infoH
+    processDataInfo.x = { infoX1, infoX2 }
+    processDataInfo.y = { infoY1, infoY2 }
+
+    local oldTerm = term.current()
+    local infoWindow = window.create(oldTerm, infoX1, infoY1, infoW, infoH, false)
+    term.redirect(infoWindow)
+    term.setTextColor(colors.white)
+    term.setBackgroundColor(colors.gray)
+    term.clear()
+    term.setCursorPos(1, 1)
+
+    ---@param str any
+    ---@param width? any
+    local function printCentered(str, width)
+        width = width or term.getSize()
+        local remaining = width - #str
+        local sideLength = remaining / 2
+        local side = (" "):rep(sideLength)
+        print(side .. str .. side)
+    end
+
+    paintutils.drawFilledBox(1, 1, infoW, infoH, colors.lightGray)
+    paintutils.drawLine(1, 1, infoW, 1, colors.gray)
+    term.setBackgroundColor(colors.gray)
+    term.setCursorPos(1, 1)
+    printCentered(data.name)
+    term.setBackgroundColor(colors.lightGray)
+    term.setTextColor(colors.black)
+    term.setCursorPos(1, 2)
+    printCentered(data.description)
+    print("")
+
+    local _, y = term.getCursorPos()
+    local remainingLines = infoH - y - 1
+    local amountDirs = math.floor(remainingLines / 3)
+    local hiddenDirs = amountDirs < #data.dirs
+    amountDirs = hiddenDirs and amountDirs or #data.dirs
+    local amountFiles = remainingLines - (amountDirs + 1)
+    local hiddenFiles = amountFiles < #data.files
+    amountFiles = hiddenFiles and amountFiles or #data.files
+
+    if amountDirs ~= 0 then
+        print("Contains directories:")
+        for i = 1, amountDirs do
+            local dir = data.dirs[i]
+            write(" ")
+            term.setBackgroundColor(colors.white)
+            print(dir)
+            term.setBackgroundColor(colors.lightGray)
+        end
+        if hiddenDirs then
+            term.setTextColor(colors.gray)
+            print(" and " .. math.ceil(#data.dirs - amountDirs) .. " more")
+            term.setTextColor(colors.black)
+        end
+    else
+        print("Contains " .. #data.dirs .. " directories")
+    end
+    if amountFiles ~= 0 then
+        print("Contains files:")
+        for i = 1, amountFiles do
+            local file = data.files[i]
+            write(" ")
+            term.setBackgroundColor(colors.white)
+            print(file)
+            term.setBackgroundColor(colors.lightGray)
+        end
+        if hiddenFiles then
+            term.setTextColor(colors.gray)
+            write(" and " .. math.ceil(#data.files - amountFiles) .. " more")
+            term.setTextColor(colors.black)
+        end
+    else
+        print("Contains " .. #data.files .. " files")
+    end
+
+    infoWindow.setVisible(true)
+    term.redirect(oldTerm)
+    return processDataInfo
+end
+---@param processData table
+---@param dataList table List containing data items
+---@param dataType string|table Type for all data items in dataList or a table for each item specifically
+---@return table processData
+---@return table lineToId
+local function render(processData, dataList, dataType)
+    clearTerm()
+    term.setTextColor(colors.white)
+    local w, h = term.getSize()
+    paintutils.drawLine(1, 1, w, 1, colors.gray)
+    local confirm = " done "
+    term.setCursorPos(w-#confirm+1, 1)
+    term.setTextColor(colors.black)
+    term.setBackgroundColor(colors.lightGray)
+    print(confirm)
+    term.setTextColor(colors.white)
+    term.setBackgroundColor(colors.black)
+
+    local lineToId = {}
+    for id, data in pairs(dataList) do
+        table.insert(lineToId, id)
+        local _, y = term.getCursorPos()
+        local itemData = processData[y-1]
+        local line, itemData = genLine(itemData, processData.info.index == id, data, dataType)
+        processData[y-1] = itemData
+        print(line)
+    end
+    if processData.info.index then
+        processData.info = renderInfo(dataList[processData.info.index], processData.info)
+    end
+    return processData, lineToId
+end
+---@param processData table
+---@param lineToId table
+---@return table processData
+---@return boolean? done
+local function getInput(processData, lineToId)
+    local w, h = term.getSize()
+    local results = { os.pullEvent() }
+    if results[1] == "mouse_click" then
+        local event, btn, x, y = table.unpack(results)
+        if processData.info.index then
+            local info = processData.info
+            if x >= info.x[1] and x <= info.x[2] and y >= info.y[1] and y <= info.y[2] then
+
+            else
+                processData.info = { index = nil }
+            end
+        elseif y == 1 and x >= w-4 then
+            return processData, true
+        elseif (y - 1) > (#processData) then
+            -- do nothing and wait for return
+        elseif x >= 1 and x <= 3 then
+            processData[y-1].checked = not processData[y-1].checked
+        elseif x >= w - 2 and x <= w then
+            processData.info = { index = lineToId[y-1] }
+        end
+    end
+    return processData
 end
 ---@param dataList table List containing data items
 ---@param dataType string|table Type for all data items in dataList or a table for each item specifically
 ---@return nil
 local function promptInstallList(dataList, dataType)
-
+    local processData = { info = { index = nil } }
+    local done = false
+    local lineToId = {}
+    while not done do
+        processData, lineToId = render(processData, dataList, dataType)
+        processData, done = getInput(processData, lineToId)
+        sleep(0)
+    end
+    for i=1,#processData do 
+        local id = lineToId[i]
+        local item = dataList[id]
+        installItems(item.dirs, item.files, item.fileSource or prgmFiles.fileLocation)
+    end
 end
 promptInstallList(modules, "module")
 
@@ -527,10 +694,7 @@ promptInstall({
         settings.save()
     end
 })
-term.setTextColor(colors.white)
-term.setBackgroundColor(colors.black)
-term.clear()
-term.setCursorPos(1, 1)
+clearTerm()
 
 local input
 repeat
@@ -541,9 +705,6 @@ if input == "y" then
     os.reboot()
 end
 
-term.setTextColor(colors.white)
-term.setBackgroundColor(colors.black)
-term.clear()
-term.setCursorPos(1, 1)
+clearTerm()
 
 print("installed successfully, run 'userfacing/viewDatabase.lua' to start")
