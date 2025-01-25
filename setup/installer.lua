@@ -456,7 +456,7 @@ local function promptInstall(data, dataType)
     until success
 end
 
---[[ handle external items
+-- handle external items
 local externals = prgmFiles.external
 for _, external in ipairs(externals) do
     promptInstall(external, "external")
@@ -465,7 +465,7 @@ end
 --]]
 
 -- handle optional modules/templates
-local modules = prgmFiles.modules --[[
+local modules = prgmFiles.modules
 for id, moduleData in pairs(modules) do
     promptInstall(moduleData, "module")
 end
