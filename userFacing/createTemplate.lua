@@ -119,7 +119,7 @@ until valid
 local templateFileName = templateType .. templateName .. ".sdoc"
 local templateFilePath = fs.combine(templateDir, templateFileName)
 
-local files = fs.list(combinePath("templates"))
+local files = fs.list(templateDir)
 local baseTemplates = { {}, {} }
 for _, file in ipairs(files) do
     file = file:sub(1, -6)
@@ -160,4 +160,5 @@ elseif not fs.exists(templateFilePath) then
     h.close()
 end
 print("launching sword.lua with " .. templateFilePath)
-shell.run("sword " .. templateFilePath)
+sleep(5)
+shell.run(combinePath("/sword.lua").." " .. templateFilePath)

@@ -14,7 +14,7 @@ end
 local completions = fs.list(combinePath("/completion"))
 for i,v in ipairs(completions) do
     local filepath = "/completion/"..v.."/loop.lua"
-    if fs.exists(filepath) then
+    if fs.exists(combinePath(filepath)) then
         shell.openTab(combinePath(filepath))
     end
 end

@@ -11,7 +11,7 @@ local function combinePath(...)
 end
 local db = {}
 db._INTERNAL = {}
-db.dirPath = "database"
+db.dirPath = combinePath("database")
 db.dataPath = fs.combine(db.dirPath,"data.lon")
 
 settings.define("KGdatabase.faultyDBtolerance", {

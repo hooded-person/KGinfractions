@@ -1,3 +1,15 @@
+---@param ... string strings for paths to combine
+---@return string
+local function combinePath(...)
+    settings.define("KGinfractions.root", {
+        description = "The program root",
+        default = "/",
+        type = "string"
+    })
+    local projectRoot = settings.get("KGinfractions.root")
+    return "/"..fs.combine(projectRoot, ...)
+end
+
 local function printC(sText, cColor,win)
     if type(cColor) == "string" and #cColor > 1 then
         cColor = colors[cColor]
@@ -17,7 +29,7 @@ local function printC(sText, cColor,win)
     term.setTextColor(oldColor)
     if win then term.redirect(oldWin) end
 end
-local mainPath = "completion/username"
+local mainPath = combinePath("completion/username")
 local filePath = fs.combine(mainPath,"players.lon")
 
 local ratio = 35
