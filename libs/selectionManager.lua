@@ -76,13 +76,13 @@ function Selection:toggle(item)
     end
 end
 
----@param value boolean New value for selecting, if nil current value is returned 
+---@param value boolean New value for selecting, if nil current value is returned
 ---@return boolean? Wether selecting or not
 function Selection:isSelecting(value)
-    if value ~= nil then 
+    if value ~= nil then
         assert(type(value) == "boolean")
         self.selecting = value
-    else 
+    else
         return self.selecting
     end
 end
@@ -117,10 +117,10 @@ end
 function Selection:getDragX(amount)
     if not amount then amount = 1 end
     local dragXs = {}
-    for i = #self.drag, #self.drag-amount, -1 do 
+    for i = #self.drag, #self.drag-amount, -1 do
         table.insert(dragXs, self.drag[i][1])
     end
-    return table.unpack(dragXs) 
+    return table.unpack(dragXs)
 end
 
 ---@param amount any The amount of y values too return
@@ -128,7 +128,7 @@ end
 function Selection:getDragY(amount)
     if not amount then amount = 1 end
     local dragYs = {}
-    for i = #self.drag, #self.drag-amount, -1 do 
+    for i = #self.drag, #self.drag-amount, -1 do
         local dragY = self.drag[i] and self.drag[i][2]
         table.insert(dragYs, dragY)
     end
@@ -137,7 +137,7 @@ end
 
 ---@return table returns all the drag values
 function Selection:getDrag()
-    return self.drag 
+    return self.drag
 end
 
 ---@return number? starting X pos of selection

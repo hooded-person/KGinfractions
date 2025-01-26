@@ -654,7 +654,7 @@ local function getBarButtons(selection)
                         if template then
                             local result = require(combinePath("/main/printMessage"))(template, formatData, "M.re-print", true)
                             local continue = result.continue or "next" --  "retry", "next", "none" or `nil`
-                            if continue == "none" then 
+                            if continue == "none" then
                                 break
                             elseif continue == "retry" then
                                 local result = require(combinePath("/main/printMessage"))(template, formatData, "M.re-print", true)
@@ -665,7 +665,7 @@ local function getBarButtons(selection)
                             elseif continue == "next" then
 
                             end
-                        else 
+                        else
                             term.setTextColor(colors.orange)
                             print("Template ["..entry.template[1].." "..entry.template[2].."] does not exist, skipping reprint")
                             term.setTextColor(colors.white)

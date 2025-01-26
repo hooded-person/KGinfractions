@@ -8,7 +8,7 @@ local repoLoc = "hooded-person".."/".."KGinfractions";
 local inbeteenShit = "/refs/heads/";
 local branch = "main/";
 local HTTProot = fileHost..repoLoc..inbeteenShit..branch
-HTTProot = "http://127.0.0.1:3000/" 
+HTTProot = "http://127.0.0.1:3000/"
 local installerTestFileURL = HTTProot.."setup/installerTesterStartup.lua";
 local installerFileUrl = HTTProot.."setup/installer.lua";
 
@@ -54,7 +54,7 @@ end
 local function getInstallerInfo(installerURL)
     local success, responseData = getUrl(installerURL)
     local info = {}
-    for infoItem in responseData.body:match("^-- ([^\n]*)"):gmatch("([^,]*),?") do 
+    for infoItem in responseData.body:match("^-- ([^\n]*)"):gmatch("([^,]*),?") do
         local seperatorI = infoItem:find(":")
         local k = infoItem:sub(0,seperatorI-1)
         local v = infoItem:sub(seperatorI+1)
@@ -80,7 +80,7 @@ print(("version: %f\ninstaller version: %s\ninstaller data version: %s"):format(
 local outdated = (tonumber(version) < tonumber(expectedSelfVersion) and {"self",expectedSelfVersion}) or (tonumber(installerInfo.v) < tonumber(expectedVersion) and {"installer",expectedVersion}) or (tonumber(installerInfo.dataVersion) < tonumber(expectedDataVersion) and {"installer data", expectedDataVersion}) or {}
 local outdatedItem = outdated[1]
 if outdatedItem then
-    if outdatedItem == "self" then 
+    if outdatedItem == "self" then
         term.setTextColor(colors.gray)
         fs.delete("startup.lua")
         shell.run("wget "..installerTestFileURL.." startup.lua")

@@ -19,7 +19,7 @@ table.sort(templates)
 
 local formatedTable = {}
 for _, template in ipairs(templates) do
-    if showHidden or template:sub(1,4) ~= "hide" then 
+    if showHidden or template:sub(1,4) ~= "hide" then
         if type(formatedTable[template:sub(1,4):upper()]) ~= "table" then formatedTable[template:sub(1,4):upper()] = {} end
         table.insert(formatedTable[template:sub(1,4):upper()],template)
     end

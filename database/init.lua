@@ -25,8 +25,8 @@ settings.define("KGdatabase.faultyDBtolerance", {
 ---@return function the wrapped function
 db._INTERNAL.base = function(coreFunc,saveData)
     if saveData == nil then saveData = true end
-    return function(...) 
-        local args = {...} 
+    return function(...)
+        local args = {...}
         local h = fs.open(db.dataPath,"r")
         local data
         if h == nil then -- assume no database has existed yet and create empty table for one
@@ -37,8 +37,8 @@ db._INTERNAL.base = function(coreFunc,saveData)
             data = textutils.unserialise(data)
         end
 
-        if data == nil and settings.get("KGdatabase.faultyDBtolerance") then 
-            data={} 
+        if data == nil and settings.get("KGdatabase.faultyDBtolerance") then
+            data={}
         elseif data == nil and not settings.get("KGdatabase.faultyDBtolerance") then
             error("faulty database, could not unserialise. Too use an empty database next time, set 'KGdatabase.faultyDBtolerance' too true")
         end
@@ -51,10 +51,10 @@ db._INTERNAL.base = function(coreFunc,saveData)
             local currentBits = fs.getSize(combinePath("/database/data.lon"))
             local newBits = #data - currentBits
             newBits = newBits > 500 and newBits or 500
-            if newBits > remainingBits then 
-                error("Not enough space for saving db\n"..remainingBits.." was available but needed "..newBits.." ("..(#data > 500 and #data or 500).." total)") 
+            if newBits > remainingBits then
+                error("Not enough space for saving db\n"..remainingBits.." was available but needed "..newBits.." ("..(#data > 500 and #data or 500).." total)")
             end
-            
+           
             local h = fs.open(db.dataPath,"w")
             h.write(data)
             h.close()
@@ -68,7 +68,7 @@ end
 ---@param position number the position for where to insert
 db.insert = db._INTERNAL.base(function (data, newdata, position)
     assert( type(data)=="table", "data is not a table, internal error or some")
-    
+   
     if position then
         table.insert(data,position,newdata)
     else
@@ -80,7 +80,7 @@ end)
 ---@return any the removed value
 db.remove = db._INTERNAL.base(function (data, position)
     assert( type(data)=="table", "data is not a table, internal error or some")
-    
+   
     local result
     if position then
         result = table.remove(data,position)
@@ -93,14 +93,14 @@ end)
 ---@return number length of the table
 db.getn = db._INTERNAL.base(function (data)
     assert( type(data)=="table", "data is not a table, internal error or some")
-    
+   
     return table.getn(data)
 end)
 
 ---@return number the highest numerical index of the table
 db.maxn = db._INTERNAL.base(function (data)
     assert( type(data)=="table", "data is not a table, internal error or some")
-    
+   
     return table.maxn(data)
 end)
 
@@ -109,11 +109,11 @@ end)
 db.set = db._INTERNAL.base(function (data, index, newdata)
     assert( type(data)=="table", "data is not a table, internal error or some")
     assert( type(index)~="table", "tabled indexing is not supported for set, get the value and then modify it further")
-    
+   
     if type(index) ~= "table" then
         data[index] = newdata
     end
-    
+   
     --[[local indexRev = {}
     local item = data
     for i,v in ipairs(index) do

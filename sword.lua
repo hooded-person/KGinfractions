@@ -825,7 +825,7 @@ return button
 end
 
 function mbar.toggleButton(label, callback)
-local button = mbar.button(label, callback) 
+local button = mbar.button(label, callback)
 
 function button.setValue(value)
 button.value = value
@@ -849,7 +849,7 @@ return button
 end
 
 function mbar.divider()
-local divider = mbar.button("") 
+local divider = mbar.button("")
 divider.divider = true
 
 function divider.click()
@@ -893,7 +893,7 @@ return menu
 end
 
 function mbar.charMenu(callback)
-local menu = mbar.absMenu() 
+local menu = mbar.absMenu()
 menu.callback = callback
 menu.color = colors.black
 menu.width, menu.height = 16, 16

@@ -177,7 +177,7 @@ return function (input)
             out[1] = out[1] .. alphabet[v][1]
             out[2] = out[2] .. alphabet[v][2]
             out[3] = out[3] .. alphabet[v][3]
-        else 
+        else
             term.setTextColor(colors.orange)
             print("'"..v.."' does not exist, skipping")
             term.setTextColor(colors.white)

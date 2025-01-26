@@ -36,7 +36,7 @@ local templateListBuild = {
 }
 local templates = {}
 for i, templatePath in ipairs(templatesStrings) do
-    local validTemplate = templatePath:sub(-5) == ".sdoc" 
+    local validTemplate = templatePath:sub(-5) == ".sdoc"
         and templatePath:sub(1,4) ~= "hide"
     if validTemplate then
         local template = templatePath:gsub(".sdoc", "")

@@ -9,12 +9,12 @@ settings.define("KGtemplateForge.typeColors", {
 })
 local args = {...}
 local loop = false
-if args[1] == "-l" then 
+if args[1] == "-l" then
     table.remove(args,1)
     loop = true
 end
 local argStr
-if args[1] == "-f" then 
+if args[1] == "-f" then
     table.remove(args,1)
     local path = table.remove(args,1)
     path = fs.combine( shell.dir(), path )
@@ -31,9 +31,9 @@ end
 local lines
 local i = 0
 repeat
-    if loop then 
+    if loop then
         i = i + 1
-        term.clear() 
+        term.clear()
         term.setCursorPos(1,1)
     end
     local output = loadfile("/main/alphabet.lua")()( argStr )
@@ -54,6 +54,6 @@ local printerHost = 15
 
 rednet.open("back")
 local success, reason = spclib.printDocument(printerHost, lines, 1, false)
-if not success then 
+if not success then
     print(reason)
 end

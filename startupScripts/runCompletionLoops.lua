@@ -8,7 +8,7 @@ local projectRoot = settings.get("KGinfractions.root")
 
 local completions = fs.list("/completion")
 for i,v in ipairs(completions) do
-    local filepath = "/completion/"..v.."/loop.lua" 
+    local filepath = "/completion/"..v.."/loop.lua"
     if fs.exists(filepath) then
         shell.openTab(fs.combine(projectRoot, filepath))
     end

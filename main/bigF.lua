@@ -153,7 +153,7 @@ local function makeText(nSize, sString, nFC, nBC, bBlit)
     local cBC = type(nBC) == "string" and nBC:sub(1, 1) or tHex[nBC] or error("Wrong Back Color",3)
     local font = fonts[nSize] or error("Wrong font size selected",3)
     if sString == "" then return {{""}, {""}, {""}} end
-    
+   
     local input = {}
     for i in sString:gmatch('.') do table.insert(input, i) end
 
@@ -274,7 +274,7 @@ b.blitOn = function(tTerminal, nSize, sString, sFront, sBack, nX, nY)
     press(tTerminal, makeText(nSize, sString, sFront, sBack, true), nX, nY)
 end
 
---# 
+--#
 b.doc.makeBlittleText = [[makeBlittleText(nSize, sString, nFC, nBC) - Generate blittle object in size nSize with text sString in blittle format for printing with that api. nFC and nBC are colors to generate the object with.]]
 b.makeBlittleText = function(nSize, sString, nFC, nBC)
     expect(1, nSize, "number")

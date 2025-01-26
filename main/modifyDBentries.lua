@@ -176,7 +176,7 @@ local function getInput(entry, rowTracking)
     if clickedItem[1] == "}" then return false end
 
     print(clickedItem[1])
-    
+   
     local query = ""
     for typeChar, match in clickedItem[1]:gmatch("([.,])([^.,]*)") do
         if typeChar == "." then
@@ -191,7 +191,7 @@ local function getInput(entry, rowTracking)
     print(functionTxt)
     local currentValue = load(functionTxt, "=generatedIndexing", "t", { searchingTable = entry })()
     print("LINE 171")
-    
+   
     --print(clickedItem[1])
     term.setCursorPos(clickedItem[2] + 1, y)
     local preparedValue = prepareValue(currentValue)

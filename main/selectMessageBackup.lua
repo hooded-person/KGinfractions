@@ -24,7 +24,7 @@ local templateListBuild = {
 }
 local templates = {}
 for i, templatePath in ipairs(templatesStrings) do
-    local validTemplate = templatePath:sub(-5) == ".sdoc" 
+    local validTemplate = templatePath:sub(-5) == ".sdoc"
         and templatePath:sub(1,4) ~= "hide"
     if validTemplate then
         local template = templatePath:gsub(".sdoc", "")
@@ -259,7 +259,7 @@ local function selectTemplate()
             elseif selectedTemp > #templates[ templateList["type"][selectedType] ] then
                 selectedTemp = 1
             end
-                
+               
         end
     end
 end
@@ -283,7 +283,7 @@ local success, result = db.process({
 -- discord timestamps use UTC        +60*60, -- add 1 hour (in seconds) to get CET again
 })
 
-if not success then 
+if not success then
     term.setTextColor(colors.red)
     print("database processing failed, printing without db entry")
     term.setTextColor(colors.white)

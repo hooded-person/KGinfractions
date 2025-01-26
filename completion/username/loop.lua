@@ -1,6 +1,6 @@
 local function printC(sText, cColor,win)
     if type(cColor) == "string" and #cColor > 1 then
-        cColor = colors[cColor] 
+        cColor = colors[cColor]
     elseif type(cColor) == "string" and #cColor == 1 then
         local blitColors = {["0"]=1, ["1"]=2, ["2"]=4, ["3"]=8, ["4"]=16, ["5"]=32, ["6"]=64, ["7"]=128, ["8"]=256, ["9"]=512, ["a"]=24, ["b"]=48, ["c"]=96, ["d"]=8192, ["e"]=16384, ["f"]=32768}
         cColor = blitColors[cColor]
@@ -11,7 +11,7 @@ local function printC(sText, cColor,win)
     term.setTextColor(cColor)
     if type(sText) == "table" then
         print(table.unpack(sText))
-    else 
+    else
         print(sText)
     end
     term.setTextColor(oldColor)
@@ -51,7 +51,7 @@ local function main()
             h.close()
             players = textutils.unserialise(players)
         end
-        if not players then 
+        if not players then
             players = {{},{}}
         end
         if not players[1][user] then
@@ -89,7 +89,7 @@ local function list()
         h.close()
         players = textutils.unserialise(players)
         players = players[2]
-    else 
+    else
         players = {}
     end
 
@@ -99,8 +99,8 @@ local function list()
     local cX, cY = 1, 1
     while true do
         local event, dir, x, y = os.pullEvent()
-        
-        if event == "updated" then 
+       
+        if event == "updated" then
             local h = fs.open(filePath,"r")
             local playersR
             if h then
@@ -119,7 +119,7 @@ local function list()
             if cY > 1 then cY = 1 end
             if cY < 2-#players then cY = 2-#players end
             listWin.setCursorPos(cX,cY)
-            
+           
             dispList(players,listWin)
         end
     end

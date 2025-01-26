@@ -453,12 +453,12 @@ local function promptInstall(data, dataType)
         local success = true
         local eventData = {os.pullEvent()}
         local skip, install, done
-        if eventData[1] == "mouse_click" then 
+        if eventData[1] == "mouse_click" then
             local event, mouse, x, y = table.unpack(eventData)
             skip = buttonSkip and buttonSkip.click(x, y)
             install = buttonInstall and buttonInstall.click(x, y)
             done = buttonDone and buttonDone.click(x, y)
-        elseif eventData[1] == "key" then 
+        elseif eventData[1] == "key" then
             local event, keyNum, is_held = table.unpack(eventData)
             --[[ keys
                 enter: 257 -> install|done
@@ -466,9 +466,9 @@ local function promptInstall(data, dataType)
                 n:     78  -> cancel
 
             ]]
-            skip = buttonSkip and (keyNum == 78) 
-            install = buttonInstall and (keyNum == 89 or keyNum == 257) 
-            done = buttonDone and (keyNum == 257) 
+            skip = buttonSkip and (keyNum == 78)
+            install = buttonInstall and (keyNum == 89 or keyNum == 257)
+            done = buttonDone and (keyNum == 257)
         end
         if skip then
             print("Skipped installing " .. dataType.name)

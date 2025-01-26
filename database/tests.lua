@@ -22,7 +22,7 @@ local function test(check, match, name)
     table.insert(tests, result )
 
     write("test "..(name or table.getn(tests)).." ")
-    if result then 
+    if result then
         term.setTextColor(colors.green)
         print("passed")
     else
