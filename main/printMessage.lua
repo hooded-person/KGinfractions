@@ -1,4 +1,16 @@
-local spclib = require("../libs/spclib")
+---@param ... string strings for paths to combine
+---@return string
+local function combinePath(...)
+    settings.define("KGinfractions.root", {
+        description = "The program root",
+        default = "/",
+        type = "string"
+    })
+    local projectRoot = settings.get("KGinfractions.root")
+    return "/"..fs.combine(projectRoot, ...)
+end
+
+local spclib = require(combinePath("libs/spclib"))
 local printerHost = 3
 
 local templateDir = "templates/"
@@ -20,7 +32,7 @@ local function getTemplateDoc(template, formatData)
     return template
 end
 
-settings.define("kgTF.typeColors", {
+settings.define("KGtemplateForge.typeColors", {
     description = "Which colors too use for template types",
     default = {
         ["WARN"] = colors.orange,
@@ -39,11 +51,11 @@ return function(template, formatData, source, printOnly)
     local Hstart, Hend = toPrint:find("[^\n]*\n")
     local header = toPrint:sub(Hstart, Hend)
     local rest = toPrint:sub(Hend + 1)
-    local color = colors.toBlit(settings.get("kgTF.typeColors")[template[1]])
+    local color = colors.toBlit(settings.get("KGtemplateForge.typeColors")[template[1]])
     local title = "\160c" .. color -- color
         .. "\160ac"              -- align center
     -- get alphabet table
-    local alphabet = require("./alphabet")
+    local alphabet = require(combinePath("main/alphabet"))
     title = title .. alphabet(template[1])
 
     title = title .. "\160cf\n"
@@ -57,7 +69,7 @@ return function(template, formatData, source, printOnly)
     end
     local success, result
     if processDB then
-        local db = require("../database/addProcessing")
+        local db = require(combinePath("/database/addProcessing"))
         success, result = db.process({
             template = template,
             formatData = formatData,
@@ -69,7 +81,7 @@ return function(template, formatData, source, printOnly)
     end
 
     if not success then
-        term.setTextColor(colors.red)
+        term.setTextColor(printOnly and colors.white or colors.red)
         print((printOnly and "database processing disabled" or "database processing failed")..", printing without db entry")
         term.setTextColor(colors.white)
     end
@@ -84,13 +96,14 @@ return function(template, formatData, source, printOnly)
     print("reference: " .. tostring(result.reference))
     term.setTextColor(colors.white)
 
-    if peripheral.isPresent("right") then
-        rednet.open("right")
+    local modemSide = settings.get("KGtemplateForge.modemSide")
+    if peripheral.isPresent(modemSide) then
+        rednet.open(modemSide)
         spclib.printDocument(printerHost, toPrint, amount, false)
     else 
         term.setTextColor(colors.red)
-        print("no modem right available for rednet")
-        sleep(10)
+        print("no modem right available for rednet, can not print document")
+        sleep(3)
     end
 
 

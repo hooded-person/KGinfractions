@@ -3,7 +3,7 @@ if templateDir:sub(-1) ~= "/" then templateDir = templateDir .. "/" end
 -- use debug() instead of print() for debugging for easier removal(or disabling) of the statments after debugging is done
 local debug = print
 -- load and prepare templates
-settings.define("kgTF.typeColors", {
+settings.define("KGtemplateForge.typeColors", {
     description = "Which colors too use for template types",
     default = {
         ["WARN"] = colors.orange,
@@ -12,7 +12,7 @@ settings.define("kgTF.typeColors", {
     },
     type = "table",
 })
-local typeColors = settings.get("kgTF.typeColors")
+local typeColors = settings.get("KGtemplateForge.typeColors")
 local templatesStrings = fs.list(templateDir)
 
 local templatesExist = false

@@ -2,7 +2,7 @@ local args = { ... }
 local showHidden = args[1] or "false"
 showHidden = ({["true"]=true, ["false"]=false})[showHidden]
 
-local function name(name) local namespace = "kgTF"; return namespace.."."..name end
+local function name(name) local namespace = "KGtemplateForge"; return namespace.."."..name end
 settings.define(name("typeColors"), {
     description = "Which colors too use for template types",
     default = {

@@ -1,7 +1,25 @@
 -- v: 1.1
-error("Due to risks of corrupting the db this feature has been disabled")
+local disabled = true
+if disabled then
+    term.setTextColor(colors.red)
+    print("Due to risks of corrupting the db this feature has been disabled")
+    term.setTextColor(colors.white)
+    return false
+end
 
-local db = require "../database"
+---@param ... string strings for paths to combine
+---@return string
+local function combinePath(...)
+    settings.define("KGinfractions.root", {
+        description = "The program root",
+        default = "/",
+        type = "string"
+    })
+    local projectRoot = settings.get("KGinfractions.root")
+    return "/"..fs.combine(projectRoot, ...)
+end
+
+local db = require(combinePath("/database"))
 
 local args = { ... }
 assert(#args <= 1,
@@ -28,7 +46,7 @@ else
         looped = true
     until input == "y" or input == "n"
     if input == "y" then
-        shell.run(require("./makePath")("/userFacing/viewDatabase"))
+        shell.run(combinePath("/userFacing/viewDatabase"))
     end
     error("")
 end

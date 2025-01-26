@@ -1,4 +1,4 @@
-settings.define("kgTF.typeColors", {
+settings.define("KGtemplateForge.typeColors", {
     description = "Which colors too use for template types",
     default = {
         ["WARN"] = colors.orange,
@@ -23,7 +23,7 @@ if args[1] == "-f" then
 else
     argStr = table.concat(args," ")
 end
-local colorNum = settings.get("kgTF.typeColors")[argStr:upper()]
+local colorNum = settings.get("KGtemplateForge.typeColors")[argStr:upper()]
 local color
 if colorNum then
     color = colors.toBlit(colorNum)

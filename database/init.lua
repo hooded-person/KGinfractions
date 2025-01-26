@@ -1,10 +1,20 @@
-local makePath = require "../main/makePath"
+---@param ... string strings for paths to combine
+---@return string
+local function combinePath(...)
+    settings.define("KGinfractions.root", {
+        description = "The program root",
+        default = "/",
+        type = "string"
+    })
+    local projectRoot = settings.get("KGinfractions.root")
+    return "/"..fs.combine(projectRoot, ...)
+end
 local db = {}
 db._INTERNAL = {}
 db.dirPath = "database"
 db.dataPath = fs.combine(db.dirPath,"data.lon")
 
-settings.define("kgDB.faultyDBtolerance", {
+settings.define("KGdatabase.faultyDBtolerance", {
     description = "Wether too tolerate a faulty DB and continue with empty or too error",
     default = false,
     type = "boolean",
@@ -27,18 +37,18 @@ db._INTERNAL.base = function(coreFunc,saveData)
             data = textutils.unserialise(data)
         end
 
-        if data == nil and settings.get("kgDB.faultyDBtolerance") then 
+        if data == nil and settings.get("KGdatabase.faultyDBtolerance") then 
             data={} 
-        elseif data == nil and not settings.get("kgDB.faultyDBtolerance") then
-            error("faulty database, could not unserialise. Too use an empty database next time, set 'kgDB.faultyDBtolerance' too true")
+        elseif data == nil and not settings.get("KGdatabase.faultyDBtolerance") then
+            error("faulty database, could not unserialise. Too use an empty database next time, set 'KGdatabase.faultyDBtolerance' too true")
         end
 
         local result = { coreFunc(data, table.unpack(args)) }
         if saveData then
             data = textutils.serialise(data)
 
-            local remainingBits = fs.getFreeSpace(makePath("/database/"))
-            local currentBits = fs.getSize(makePath("/database/data.lon"))
+            local remainingBits = fs.getFreeSpace(combinePath("/database/"))
+            local currentBits = fs.getSize(combinePath("/database/data.lon"))
             local newBits = #data - currentBits
             newBits = newBits > 500 and newBits or 500
             if newBits > remainingBits then 

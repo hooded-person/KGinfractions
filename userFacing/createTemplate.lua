@@ -1,8 +1,18 @@
-local path = require("../main/makePath")
+---@param ... string strings for paths to combine
+---@return string
+local function combinePath(...)
+    settings.define("KGinfractions.root", {
+        description = "The program root",
+        default = "/",
+        type = "string"
+    })
+    local projectRoot = settings.get("KGinfractions.root")
+    return "/"..fs.combine(projectRoot, ...)
+end
 
-local templateDir = path("templates/")
+local templateDir = combinePath("templates/")
 -- load and prepare templates
-settings.define("kgTF.typeColors", {
+settings.define("KGtemplateForge.typeColors", {
     description = "Which colors too use for template types",
     default = {
         ["WARN"] = colors.orange,
@@ -109,7 +119,7 @@ until valid
 local templateFileName = templateType .. templateName .. ".sdoc"
 local templateFilePath = fs.combine(templateDir, templateFileName)
 
-local files = fs.list(path("templates"))
+local files = fs.list(combinePath("templates"))
 local baseTemplates = { {}, {} }
 for _, file in ipairs(files) do
     file = file:sub(1, -6)

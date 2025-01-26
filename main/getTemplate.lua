@@ -1,12 +1,24 @@
+---@param ... string strings for paths to combine
+---@return string
+local function combinePath(...)
+    settings.define("KGinfractions.root", {
+        description = "The program root",
+        default = "/",
+        type = "string"
+    })
+    local projectRoot = settings.get("KGinfractions.root")
+    return "/"..fs.combine(projectRoot, ...)
+end
+
 local args = { ... }
 local auto = false
 if args[1] == "-a" then auto = true, table.remove(args,1) end
 
-local templateDir = "templates/"
+local templateDir = combinePath("templates/")
 if templateDir:sub(-1) ~= "/" then templateDir = templateDir .. "/" end
 
 -- load and prepare templates
-settings.define("kgTF.typeColors", {
+settings.define("KGtemplateForge.typeColors", {
     description = "Which colors too use for template types",
     default = {
         ["WARN"] = colors.orange,
@@ -15,7 +27,7 @@ settings.define("kgTF.typeColors", {
     },
     type = "table",
 })
-local typeColors = settings.get("kgTF.typeColors")
+local typeColors = settings.get("KGtemplateForge.typeColors")
 local templatesStrings = fs.list(templateDir)
 --local templateExists = { {}, {} }
 local templateListBuild = {

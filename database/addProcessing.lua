@@ -41,7 +41,7 @@ local function getToken()
     return token
 end
 
-settings.define("kgTF.typeColors", {
+settings.define("KGtemplateForge.typeColors", {
     description = "Which colors too use for template types",
     default = {
         ["WARN"] = colors.orange,
@@ -90,7 +90,7 @@ local function notifyWebhook(processedData)
             {
                 title = table.concat(processedData.template, " ") .. " - " .. processedData.user,
                 description = deadlineTxt .. "\n" .. formatDataTxt,
-                color = colors.packRGB(term.getPaletteColor(settings.get("kgTF.typeColors")[processedData.template[1]])),
+                color = colors.packRGB(term.getPaletteColor(settings.get("KGtemplateForge.typeColors")[processedData.template[1]])),
                 timestamp = os.date("%Y-%m-%eT%R:%S.000Z", processedData.time),
             }
         },

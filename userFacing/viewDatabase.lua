@@ -1,4 +1,16 @@
-local db = require "../database/addProcessing"
+---@param ... string strings for paths to combine
+---@return string
+local function combinePath(...)
+    settings.define("KGinfractions.root", {
+        description = "The program root",
+        default = "/",
+        type = "string"
+    })
+    local projectRoot = settings.get("KGinfractions.root")
+    return "/"..fs.combine(projectRoot, ...)
+end
+
+local db = require(combinePath("database/addProcessing"))
 
 -- vars
 local selection, running
@@ -8,7 +20,7 @@ local query = {
     history = {}
 }
 -- settings
-settings.define("kgTF.typeColors", {
+settings.define("KGtemplateForge.typeColors", {
     description = "Which colors too use for template types",
     default = {
         ["WARN"] = colors.orange,
@@ -46,7 +58,7 @@ local function makeHandler(handler, reason, type) -- what did i have in mind for
         local args = { ... }
         local entry = args[1]
         -- vars
-        local typeColors = settings.get("kgTF.typeColors")
+        local typeColors = settings.get("KGtemplateForge.typeColors")
         -- handler main design
         term.setTextColor(colors.white)
         term.clear()
@@ -126,7 +138,7 @@ local function renderDB(uuids, items, expandedUUID, expandedFormatData, sort, sc
     term.setCursorPos(1, 1)
 
 
-    local typeColors = settings.get("kgTF.typeColors")
+    local typeColors = settings.get("KGtemplateForge.typeColors")
 
     term.setTextColor(colors.lightGray)
     write("type" .. (" "):rep(3)      -- 'type   '
@@ -552,7 +564,7 @@ local function getBarButtons(selection)
             submenu = { {
                 label = "Issue",
                 click = function()
-                    local func, err = loadfile("/userFacing/selectMessage.lua", nil, _ENV)
+                    local func, err = loadfile(combinePath("/userFacing/selectMessage.lua"), nil, _ENV)
                     if err then
                         error(err)
                     elseif func == nil then
@@ -563,7 +575,7 @@ local function getBarButtons(selection)
             }, {
                 label = "Template",
                 click = function()
-                    local func, err = loadfile("/userFacing/createTemplate.lua", nil, _ENV)
+                    local func, err = loadfile(combinePath("/userFacing/createTemplate.lua"), nil, _ENV)
                     if err then
                         error(err)
                     elseif func == nil then
@@ -637,9 +649,9 @@ local function getBarButtons(selection)
                         term.setTextColor(colors.white)
                         term.setBackgroundColor(colors.black)
                         local entry = db.get(uuid)
-                        local template = loadfile("/main/getTemplate.lua")("-a", entry.template[1], entry.template[2])
+                        local template = loadfile(combinePath("/main/getTemplate.lua"))("-a", entry.template[1], entry.template[2])
                         local formatData = entry.formatData
-                        require("../main/printMessage")(template, formatData, "M.re-print", true)
+                        require(combinePath("/main/printMessage"))(template, formatData, "M.re-print", true)
                     end
                     selection:clear()
                 end,
@@ -648,7 +660,7 @@ local function getBarButtons(selection)
                 type = "normal",
                 click = function()
                     if selection:size() == 0 then return false end
-                    local func, err = loadfile("/main/modifyDBentries.lua", nil, _ENV)
+                    local func, err = loadfile(combinePath("/main/modifyDBentries.lua"), nil, _ENV)
                     if func then
                         func(selection:get())
                     else
@@ -682,7 +694,7 @@ local function displayDB()
     local expandedUUID, expandedFormatData = nil, false
     local items, uuids
     -- manage selection
-    selection = require("../libs/selectionManager"):new() -- add an tracking var to the selection to know when to do shit
+    selection = require(combinePath("/libs/selectionManager")):new() -- add an tracking var to the selection to know when to do shit
     -- vars for sorting
     ---@param sortFunc function The base function for sorting
     ---@return function The generated function with extra logic for equal items
