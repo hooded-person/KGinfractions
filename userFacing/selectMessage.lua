@@ -1,3 +1,15 @@
+---@param ... string strings for paths to combine
+---@return string
+local function combinePath(...)
+    settings.define("KGinfractions.root", {
+        description = "The program root",
+        default = "/",
+        type = "string"
+    })
+    local projectRoot = settings.get("KGinfractions.root")
+    return "/"..fs.combine(projectRoot, ...)
+end
+
 local templateDir = "templates/"
 if templateDir:sub(-1) ~= "/" then templateDir = templateDir .. "/" end
 -- use debug() instead of print() for debugging for easier removal(or disabling) of the statments after debugging is done
@@ -132,7 +144,7 @@ local function getFormatData(template)
                 compFunc = nil
             else
                 print("completion/" .. compFuncPath)
-                compFunc = require("completion/" .. compFuncPath)
+                compFunc = require(combinePath("completion/" .. compFuncPath))
             end
         end
 
@@ -141,7 +153,7 @@ local function getFormatData(template)
             formatData[var] = getCurrentDate()
         elseif var == "deadline" then
             print("enter deadline (number+'m/h/d/w')(default '1w')")
-            local input = read(nil, nil, require "completion/deadline")
+            local input = read(nil, nil, require(combinePath("completion/deadline")))
             if input == "" then
                 local x, y = term.getCursorPos()
                 term.setCursorPos(x, y - 1)
@@ -310,4 +322,4 @@ local template = templates[templateList["type"][selectedType]][selectedTemp]
 
 local formatData = getFormatData(template)
 
-require("../main/printMessage")(template, formatData, "M.selectMessage.lua")
+require(combinePath("/main/printMessage"))(template, formatData, "M.selectMessage.lua")
