@@ -152,6 +152,12 @@ repeat -- template name
     end
 until valid
 
-fs.copy(fs.combine(templateDir, selectedBaseTemplate .. ".sdoc"), templateFilePath)
+if selectedBaseTemplate ~= "" then
+    fs.copy(fs.combine(templateDir, selectedBaseTemplate .. ".sdoc"), templateFilePath)
+elseif not fs.exists(templateFilePath) then
+    local h = fs.open(templateFilePath, "w") -- create file
+    h.write("shrekdoc-v02w25h21mR:") -- add correct headers
+    h.close()
+end
 print("launching sword.lua with " .. templateFilePath)
 shell.run("sword " .. templateFilePath)
