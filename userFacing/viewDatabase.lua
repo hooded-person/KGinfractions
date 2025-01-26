@@ -651,7 +651,25 @@ local function getBarButtons(selection)
                         local entry = db.get(uuid)
                         local template = loadfile(combinePath("/main/getTemplate.lua"))("-a", entry.template[1], entry.template[2])
                         local formatData = entry.formatData
-                        require(combinePath("/main/printMessage"))(template, formatData, "M.re-print", true)
+                        if template then
+                            local result = require(combinePath("/main/printMessage"))(template, formatData, "M.re-print", true)
+                            local continue = result.continue or "next" --  "retry", "next", "none" or `nil`
+                            if continue == "none" then 
+                                break
+                            elseif continue == "retry" then
+                                local result = require(combinePath("/main/printMessage"))(template, formatData, "M.re-print", true)
+                                local continue = result.continue or "next"
+                                if continue == "none" or continue == "retry" then -- permit one retry (cause im to lazy to make it loop)
+                                    break
+                                end
+                            elseif continue == "next" then
+
+                            end
+                        else 
+                            term.setTextColor(colors.orange)
+                            print("Template ["..entry.template[1].." "..entry.template[2].."] does not exist, skipping reprint")
+                            term.setTextColor(colors.white)
+                        end
                     end
                     selection:clear()
                 end,
