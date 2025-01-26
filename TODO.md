@@ -2,7 +2,7 @@
 ## Required
 - [ ] Startup `sword.lua` to complete its first install things
 ## Enhancement
-- [ ] Prompt adding a webhook token
+- [x] Prompt adding a webhook token
 
 # Main
 ## bug fixes
