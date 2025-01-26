@@ -85,7 +85,8 @@
                 "completion/deadline"
             ],
             "files": [
-                "completion/deadline/init.lua"
+                "completion/deadline/init.lua",
+                "completion/deadline/times.lon"
             ]
         },
         "examples.testData": {
