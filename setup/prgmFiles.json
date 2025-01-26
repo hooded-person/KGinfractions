@@ -35,6 +35,12 @@
         "userFacing/testing.lua",
         "userFacing/viewDatabase.lua"
     ],
+    "settings":{
+        "KGtemplateForge.modemSide":{
+            "prompt":"Enter modem name",
+            "obscure":false
+        }
+    },
     "modules": {
         "boilerplateTemplates": {
             "name": "Boilerplate templates",

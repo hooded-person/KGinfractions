@@ -497,6 +497,16 @@ for _, external in ipairs(externals) do
 end
 --]]
 
+-- Handle settings
+for setting, info in pairs(prgmFiles.settings) do
+    clearTerm()
+    local repChar = type(info.obscure) == "string" and info.obscure or (info.obscure and "*" or nil)
+    print(info.prompt)
+    local input = read(repChar)
+    settings.set(setting, input)
+    settings.save()
+end
+
 -- handle optional modules/templates
 ---@param processData table
 ---@param infoOpened boolean
