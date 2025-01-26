@@ -1,15 +1,20 @@
-settings.define("KGinfractions.root", {
+---@param ... string strings for paths to combine
+---@return string
+local function combinePath(...)
+    settings.define("KGinfractions.root", {
         description = "The program root",
         default = "/",
         type = "string"
     })
-local projectRoot = settings.get("KGinfractions.root")
+    local projectRoot = settings.get("KGinfractions.root")
+    return "/"..fs.combine(projectRoot, ...)
+end
 
 
-local completions = fs.list("/completion")
+local completions = fs.list(combinePath("/completion"))
 for i,v in ipairs(completions) do
     local filepath = "/completion/"..v.."/loop.lua"
     if fs.exists(filepath) then
-        shell.openTab(fs.combine(projectRoot, filepath))
+        shell.openTab(combinePath(filepath))
     end
 end
