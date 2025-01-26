@@ -10,7 +10,7 @@ local function combinePath(...)
     return "/"..fs.combine(projectRoot, ...)
 end
 
-local templateDir = "templates/"
+local templateDir = combinePath("templates/")
 if templateDir:sub(-1) ~= "/" then templateDir = templateDir .. "/" end
 -- use debug() instead of print() for debugging for easier removal(or disabling) of the statments after debugging is done
 local debug = print
@@ -140,11 +140,12 @@ local function getFormatData(template)
         else
             var = match:sub(0, index - 1)
             local compFuncPath = match:sub(index + 1)
-            if not fs.exists("completion/" .. compFuncPath) or compFuncPath == "" then
+            compFuncPath = combinePath("completion/" .. compFuncPath)
+            if not fs.exists(compFuncPath) or compFuncPath == combinePath("") then
                 compFunc = nil
             else
-                print("completion/" .. compFuncPath)
-                compFunc = require(combinePath("completion/" .. compFuncPath))
+                print(compFuncPath)
+                compFunc = require(compFuncPath)
             end
         end
 

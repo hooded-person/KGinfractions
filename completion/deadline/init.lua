@@ -1,5 +1,17 @@
+---@param ... string strings for paths to combine
+---@return string
+local function combinePath(...)
+    settings.define("KGinfractions.root", {
+        description = "The program root",
+        default = "/",
+        type = "string"
+    })
+    local projectRoot = settings.get("KGinfractions.root")
+    return "/"..fs.combine(projectRoot, ...)
+end
+
 local completion = require"cc.completion"
-local mainPath = "completion/deadline"
+local mainPath = combinePath("completion/deadline")
 local filePath = fs.combine(mainPath,"times.lon")
 
 local times = {}
