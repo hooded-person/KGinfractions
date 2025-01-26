@@ -89,7 +89,7 @@ abortMeta.__call = function() -- main abort function
 end
 setmetatable(abort, abortMeta)
 local errors = {}
-errors.fatal = function (err)
+errors.fatal = function(err)
     term.setTextColor(colors.red)
     print(err);
     print("Installation will be aborted")
@@ -97,7 +97,7 @@ errors.fatal = function (err)
     sleep(3)
     abort()
 end
-errors.err = function (err)
+errors.err = function(err)
     term.setTextColor(colors.red)
     print(err);
     term.setTextColor(colors.white)
@@ -140,7 +140,7 @@ local function getUrl(url, notFatal)
     local canRequest, err = http.checkURL(url);
     if not canRequest then
         errSystem(err);
-        return false, {error = err}
+        return false, { error = err }
     end;
     local response, err, failResponse = http.get({
         url = url,
@@ -149,11 +149,11 @@ local function getUrl(url, notFatal)
         response = failResponse;
     elseif err and not failResponse then
         errSystem(err)
-        return false, {error = err}
+        return false, { error = err }
     end;
     if response == nil then
         errSystem(err)
-        return false, {error = err}
+        return false, { error = err }
     end
     local statusCode = response.getResponseCode();
     local headers = response.getResponseHeaders();
@@ -202,8 +202,8 @@ end
 ---@param filePath string The filepath to which to downlaod the file
 ---@param notify? boolean Wether to print what is happenening (lot of downloads after each other otherwise looks weird)
 ---@param notFatal? boolean Wether errors during download of this file are fatal
-local function downloadFile(url, filePath, notify,notFatal)
-    local success, responseData = getUrl(url,notFatal)
+local function downloadFile(url, filePath, notify, notFatal)
+    local success, responseData = getUrl(url, notFatal)
     if not success then return false end
     local body = responseData.body
 
@@ -266,14 +266,14 @@ settings.save()
 ---@param files table
 ---@param fileSource string Start of the url to which requested files will be appended (for getting from github: 'https://raw.githubusercontent.com/USER/REPO//refs/heads/BRANCH/')
 ---@param notFatal? boolean Wether errors during download of this file are fatal
-local function installItems(directories, files, fileSource,notFatal)
+local function installItems(directories, files, fileSource, notFatal)
     for _, directory in ipairs(directories) do
-        local forceRoot = directory:sub(1,1) == "/"
+        local forceRoot = directory:sub(1, 1) == "/"
         local dirPath = (forceRoot and "" or settings.get("KGinfractions.root")) .. directory
         makeDir(dirPath)
     end
     for _, file in ipairs(files) do
-        local forceRoot = file:sub(1,1) == "/"
+        local forceRoot = file:sub(1, 1) == "/"
         local filePath = (forceRoot and "" or settings.get("KGinfractions.root")) .. file
         downloadFile(fileSource .. file, filePath, true, notFatal)
     end
@@ -661,7 +661,7 @@ local function getInput(processData, lineToId)
                 processData.info = { index = nil }
             end
         elseif y == 1 then -- catch all clicks on the top bar
-            if x >= w - 4 then 
+            if x >= w - 4 then
                 return processData, true
             end
         elseif (y - 1) > (#processData) then
@@ -708,7 +708,7 @@ clearTerm()
 
 -- Prompt entering webhook token
 write(
-"This application supports sending messages to a discord webhook.\nPlease enter a webhook token or leave empty (token will be stored ")
+    "This application supports sending messages to a discord webhook.\nPlease enter a webhook token or leave empty (token will be stored ")
 term.setTextColor(colors.orange)
 write("UNENCRYPTED")
 term.setTextColor(colors.white)
