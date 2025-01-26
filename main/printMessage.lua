@@ -7,7 +7,7 @@ local function combinePath(...)
         type = "string"
     })
     local projectRoot = settings.get("KGinfractions.root")
-    return "/"..fs.combine(projectRoot, ...)
+    return "/" .. fs.combine(projectRoot, ...)
 end
 
 local spclib = require(combinePath("libs/spclib"))
@@ -41,7 +41,15 @@ settings.define("KGtemplateForge.typeColors", {
     },
     type = "table",
 })
+---@class Result
+---@field success boolean
+---@field continue boolean How to continue, can be "retry", "next", "none" or `nil`. `nil` should be interpeted as "next"
 
+---@param template table
+---@param formatData table
+---@param source string
+---@param printOnly? boolean
+---@return Result
 return function(template, formatData, source, printOnly)
     if printOnly == nil then printOnly = false end
     local processDB = not printOnly
@@ -53,7 +61,7 @@ return function(template, formatData, source, printOnly)
     local rest = toPrint:sub(Hend + 1)
     local color = colors.toBlit(settings.get("KGtemplateForge.typeColors")[template[1]])
     local title = "\160c" .. color -- color
-        .. "\160ac"              -- align center
+        .. "\160ac"                -- align center
     -- get alphabet table
     local alphabet = require(combinePath("main/alphabet"))
     title = title .. alphabet(template[1])
@@ -82,12 +90,13 @@ return function(template, formatData, source, printOnly)
 
     if not success then
         term.setTextColor(printOnly and colors.white or colors.red)
-        print((printOnly and "database processing disabled" or "database processing failed")..", printing without db entry")
+        print((printOnly and "database processing disabled" or "database processing failed") ..
+        ", printing without db entry")
         term.setTextColor(colors.white)
     end
-    if result and not result.webhook[1] then 
+    if result and not result.webhook[1] then
         term.setTextColor(colors.orange)
-        print("Webhook message failed: "..result.webhook[2].cause)
+        print("Webhook message failed: " .. result.webhook[2].cause)
         term.setTextColor(colors.white)
     end
     result = result or {}
@@ -100,12 +109,14 @@ return function(template, formatData, source, printOnly)
     if peripheral.isPresent(modemSide) then
         rednet.open(modemSide)
         spclib.printDocument(printerHost, toPrint, amount, false)
-    else 
+    else
         term.setTextColor(colors.red)
         print("no modem right available for rednet, can not print document")
         sleep(3)
+        return { success = false, continue = "none" }
     end
 
 
     print("finished")
+    return { success = true}
 end
