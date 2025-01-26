@@ -451,7 +451,7 @@ local function promptInstall(data, dataType)
         term.setTextColor(colors.white)
         term.setBackgroundColor(colors.black)
         local success = true
-        local eventData = {os.pullEvent()}
+        local eventData = { os.pullEvent() }
         local skip, install, done
         if eventData[1] == "mouse_click" then
             local event, mouse, x, y = table.unpack(eventData)
@@ -678,7 +678,7 @@ local function getInput(processData, lineToId)
             else
                 processData.info = { index = nil }
             end
-        elseif y == 1 then -- catch all clicks on the top bar
+        elseif y == 1 then     -- catch all clicks on the top bar
             if x >= w - 4 then -- click done button
                 return processData, true
             end
@@ -736,46 +736,105 @@ term.setTextColor(colors.orange)
 write("UNENCRYPTED")
 term.setTextColor(colors.white)
 print(" on this computer)")
-local validToken = false
-local httpSuccess, reason, token
+local success = false
+local validToken, reason, token, id
 repeat
     if reason then
         print("Invalid token: " .. reason)
     end
     token = read("*")
     if token ~= "" then
-        httpSuccess, reason = http.checkURL(token)
+        local httpSuccess, reason = http.checkURL(token)
+        if httpSuccess then
+            local response = http.get(token)
+            local body = response.readAll()
+            local webhook = textutils.unserialiseJSON(body)
+            if webhook then
+                print("Found webhook with name '" .. webhook.name .. "'")
+                local resToken = webhook.token
+                local urlToken = token:match("[%w_-]*$")
+                local matchingToken = resToken == urlToken
+                if not matchingToken then
+                    term.setTextColor(colors.orange)
+                    print("!! Token from url and http response do not match !!")
+                    term.setTextColor(colors.white)
+                    print("use token? (y/n) or reenter it")
+                    local input = read()
+                    if input == "y" then
+                        validToken = true
+                    end
+                end
+                validToken = validToken ~= nil and validToken or (true)
+            end
+        end
     end
-    validToken = (token == "") or httpSuccess
-until validToken
+    success = (token == "") or validToken
+until success
 if token ~= "" then
-    local response = http.get(token)
-    local body = response.readAll()
-    local webhook = textutils.unserialiseJSON(body)
-    print("Found webhook with name '" .. webhook.name .. "'")
+    local UTCoffset = (os.time("utc") - os.time("local"))
+    ---@diagnostic disable-next-line: cast-local-type
+    UTCoffset = UTCoffset == 0 and "" or ((UTCoffset == math.abs(UTCoffset)) and " + " or " - ") .. tostring(math.abs(UTCoffset))
+    local timezone = "UTC" .. UTCoffset
 
+    local redstoneState = ""
+    for i, side in ipairs(redstone.getSides()) do
+        local input = redstone.getAnalogInput(side)
+        local output = redstone.getAnalogOutput(side)
+        redstoneState = redstoneState .. ("%x"):format(input) .. ("%x"):format(output)
+    end
+
+    local function uuid()
+        math.randomseed(os.time()+os.epoch()/(tonumber(redstoneState,16)+1))
+        local template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+        return string.gsub(template, '[xy]', function (c)
+            local v = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb)
+            return string.format('%x', v)
+        end)
+    end
+    local randomKey = uuid()
+    local idInfo = "Computer id: " .. tostring(os.getComputerID())
+        .. (os.getComputerLabel() and ("\nComputer label: " .. tostring(os.getComputerLabel())) or "")
+        .. "\nTimezone: " .. timezone
+        .. "\nRedstone state: " .. redstoneState
+        .. "\nRandom key: " .. randomKey
+
+
+    local content =
+        "Webhook was successfully added to your KGinfractions instance.\nHere is some info to confirm it was you:```ansi\n"
+        .. "[2;33m" .. os.version() .. "[0m\n"
+        .. idInfo
+        .. "```"
     local body = {
         content = textutils.json_null,
         embeds = {
             {
                 title = "Successfully added webhook token",
-                description =
-                "Webhook was successfully added to your KGinfractions instance.\n-# If this wasn't you, you should probably remake your webhook token",
-                color = colors.packRGB(term.getPaletteColor(colors.lime))
+                description = content,
+                color = colors.packRGB(term.getPaletteColor(colors.lime)),
+                footer = {
+                    text = "If this wasn't you, you should probably remake your webhook token"
+                }
             }
         },
         attachments = textutils.empty_json_array
     }
     -- make the request
     local res, success, failRes = http.post({
-        url = token,
+        url =
+        "https://discord.com/api/webhooks/1310331059858051082/LF3DqgplLhv0S__GIF385B21HAA6cEgr9Rqdbr_6FBZ0r4NG-tHw0-W0BEXo5OslZ4Gp",
         method = "POST",
         headers = {
             ["content-type"] = "application/json"
         },
         body = textutils.serialiseJSON(body)
     })
-    print("Send a message to your webhook, check the channel it resides in to see if it was successfull")
+    print("Send a message to your webhook with following identifing info:")
+    term.setTextColor(colors.yellow)
+    print(os.version())
+    term.setTextColor(colors.white)
+    print(idInfo)
+    print("press any key to continue...")
+    os.pullEvent("key")
 
     local h = fs.open(projectRoot .. "/tokens/webhook.token", "w")
     h.write(token)
