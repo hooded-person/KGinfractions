@@ -17,7 +17,6 @@
         "database/init.lua",
         "libs/loadPath.lua",
         "libs/selectionManager.lua",
-        "main/makePath.lua",
         "main/alphabet.lua",
         "main/bigF.lua",
         "main/getTemplate.lua",
