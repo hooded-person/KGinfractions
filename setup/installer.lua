@@ -451,8 +451,26 @@ local function promptInstall(data, dataType)
         term.setTextColor(colors.white)
         term.setBackgroundColor(colors.black)
         local success = true
-        local event, mouse, x, y = os.pullEvent("mouse_click")
-        if buttonSkip and buttonSkip.click(x, y) then
+        local eventData = {os.pullEvent()}
+        local skip, install, done
+        if eventData[1] == "mouse_click" then 
+            local event, mouse, x, y = table.unpack(eventData)
+            skip = buttonSkip and buttonSkip.click(x, y)
+            install = buttonInstall and buttonInstall.click(x, y)
+            done = buttonDone and buttonDone.click(x, y)
+        elseif eventData[1] == "key" then 
+            local event, keyNum, is_held = table.unpack(eventData)
+            --[[ keys
+                enter: 257 -> install|done
+                y:     89  -> install
+                n:     78  -> cancel
+
+            ]]
+            skip = buttonSkip and (keyNum == 78) 
+            install = buttonInstall and (keyNum == 89 or keyNum == 257) 
+            done = buttonDone and (keyNum == 257) 
+        end
+        if skip then
             print("Skipped installing " .. dataType.name)
             if data.required then
                 term.setTextColor(colors.red)
@@ -478,10 +496,10 @@ local function promptInstall(data, dataType)
                 until valid
             end
             if dataType.cancel then dataType.cancel(data) end
-        elseif buttonInstall and buttonInstall.click(x, y) then
+        elseif install then
             print("Installing " .. dataType.name)
             dataType.install(data)
-        elseif buttonDone and buttonDone.click(x, y) then
+        elseif done then
             success = true
         else
             success = false
@@ -661,7 +679,7 @@ local function getInput(processData, lineToId)
                 processData.info = { index = nil }
             end
         elseif y == 1 then -- catch all clicks on the top bar
-            if x >= w - 4 then
+            if x >= w - 4 then -- click done button
                 return processData, true
             end
         elseif (y - 1) > (#processData) then
@@ -670,6 +688,11 @@ local function getInput(processData, lineToId)
             processData[y - 1].checked = not processData[y - 1].checked
         elseif x >= w - 2 and x <= w then
             processData.info = { index = lineToId[y - 1] }
+        end
+    elseif results[1] == "key" then
+        local event, keyNum, is_held = table.unpack(results)
+        if keyNum == 257 then -- press enter
+            return processData, true
         end
     end
     return processData
