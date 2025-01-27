@@ -191,7 +191,13 @@ local function renderDB(uuids, items, expandedUUID, expandedFormatData, sort, sc
                 write(entry.template[2])
 
                 term.setCursorPos(25, y)
-                write(entry.user)
+                if entry.user then
+                    write(entry.user)
+                else
+                    term.setTextColor(colors.gray)
+                    write("nill")
+                    term.setTextColor(colors.white)
+                end
                 term.setCursorPos(35, y)
                 isExpired = entry.deadline <=
                     os.epoch("utc") /
