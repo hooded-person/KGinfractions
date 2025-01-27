@@ -533,7 +533,7 @@ end
 local function genLine(processData, infoOpened, data, dataType)
     local w, h = term.getSize()
     processData = processData or {}
-    processData.checked = processData.checked or false
+    processData.checked = processData.checked or true
 
     local checkedTxt = "[" .. (processData.checked and "x" or " ") .. "]"
     local infoBtn = infoOpened and "[i]" or "(i)"
