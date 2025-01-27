@@ -744,7 +744,8 @@ repeat
     end
     token = read("*")
     if token ~= "" then
-        local httpSuccess, reason = http.checkURL(token)
+        local httpSuccess
+        httpSuccess, reason = http.checkURL(token)
         if httpSuccess then
             local response = http.get(token)
             local body = response.readAll()
