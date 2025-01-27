@@ -1,10 +1,12 @@
 # KG infractions
 
-Infraction manager for minecraft servers using [CC: tweaked](https://tweaked.cc/).
+Infraction manager for minecraft servers using [CC: tweaked](https://tweaked.cc/). Create, track and handle infractions using an interactive GUI. 
 
 ![image](images/GUI_viewDatabase.png)
 
-Uses templates in the `.sdoc` format, for more info see https://github.com/ShrekshelleraiserCC/shrekword/.
+Infractions can be created from templates.
+
+Templates use the `.sdoc` format, for more info see https://github.com/ShrekshelleraiserCC/shrekword/.
 
 ## Demo
 A web demo has been implemented using [copy cat](https://github.com/SquidDev-CC/copy-cat)  
