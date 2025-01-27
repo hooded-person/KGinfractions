@@ -13,7 +13,7 @@ end
 local spclib = require(combinePath("libs/spclib"))
 local printerHost = 3
 
-local templateDir = "templates/"
+local templateDir = combinePath("templates/")
 if templateDir:sub(-1) ~= "/" then templateDir = templateDir .. "/" end
 
 local function getTemplateDoc(template, formatData)
@@ -56,7 +56,7 @@ return function(template, formatData, source, printOnly)
     -- get document string
     local toPrint = getTemplateDoc(template, formatData)
     -- add type label in color to document
-    local Hstart, Hend = toPrint:find("[^\n]*\n")
+    local Hstart, Hend = toPrint:find("[^\n:]*:\n?")
     local header = toPrint:sub(Hstart, Hend)
     local rest = toPrint:sub(Hend + 1)
     local color = colors.toBlit(settings.get("KGtemplateForge.typeColors")[template[1]])
