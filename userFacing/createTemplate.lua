@@ -7,7 +7,7 @@ local function combinePath(...)
         type = "string"
     })
     local projectRoot = settings.get("KGinfractions.root")
-    return "/"..fs.combine(projectRoot, ...)
+    return "/" .. fs.combine(projectRoot, ...)
 end
 
 local templateDir = combinePath("templates/")
@@ -93,6 +93,39 @@ repeat -- template type
     end
 until valid
 
+if settings.get("KGtemplateForge.typeColors")[templateType:upper()] == nil then
+    local colorsL = { "white", "orange", "magenta", "lightBlue", "yellow", "lime", "pink", "gray", "lightGray", "cyan",
+        "purple", "blue", "brown", "green", "red", "black" }
+    local colorsT = {
+        white = colors.white,
+        orange = colors.orange,
+        magenta = colors.magenta,
+        lightBlue = colors.lightBlue,
+        yellow = colors.yellow,
+        lime = colors.lime,
+        pink = colors.pink,
+        gray = colors.gray,
+        lightGray = colors.lightGray,
+        cyan = colors.cyan,
+        purple = colors.purple,
+        blue = colors.blue,
+        brown = colors.brown,
+        green = colors.green,
+        red = colors.red,
+        black = colors.black
+    }
+    print("Template type '%s' does not have a color yet, would you like to asign a color? (empty for none)")
+    local color = read(nil, nil, function(text) return require("cc.completion").choice(text, colorsL) end)
+    if color ~= "" and colorsT[color] then
+       local typeColors = settings.get("KGtemplateForge.typeColors")
+       typeColors[templateType:upper()] = colorsT[color]
+       settings.set("KGtemplateForge.typeColors", typeColors)
+       settings.save()
+    end
+end
+
+
+
 local templateName
 repeat -- template name
     local valid = true
@@ -116,7 +149,7 @@ repeat -- template name
     end
 until valid
 
-local templateFileName = templateType .. templateName .. ".sdoc"
+local templateFileName = templateType:lower() .. templateName .. ".sdoc"
 local templateFilePath = fs.combine(templateDir, templateFileName)
 
 local files = fs.list(templateDir)
@@ -156,9 +189,9 @@ if selectedBaseTemplate ~= "" then
     fs.copy(fs.combine(templateDir, selectedBaseTemplate .. ".sdoc"), templateFilePath)
 elseif not fs.exists(templateFilePath) then
     local h = fs.open(templateFilePath, "w") -- create file
-    h.write("shrekdoc-v02w25h21mR:") -- add correct headers
+    h.write("shrekdoc-v02w25h21mR:")         -- add correct headers
     h.close()
 end
 print("launching sword.lua with " .. templateFilePath)
-sleep(5)
-shell.run(combinePath("/sword.lua").." " .. templateFilePath)
+sleep(2)
+shell.run(combinePath("/sword.lua") .. " " .. templateFilePath)
