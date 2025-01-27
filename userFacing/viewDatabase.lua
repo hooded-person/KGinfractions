@@ -92,6 +92,9 @@ local handleExpiredWarn = makeHandler(
         entry.from = UUID
         db.add(entry) --push to db
 
+        local oldEntry = db.get(UUID)
+        oldEntry.handled = true
+        db.set(UUID, oldEntry)
 
         sleep(2)
     end, "expired", "warn"  -- what did i have in mind for these vars? no idea
