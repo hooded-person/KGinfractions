@@ -6,7 +6,7 @@ Infraction manager for minecraft servers using [CC: tweaked](https://tweaked.cc/
 
 Infractions can be created from templates and are automaticly stored in the database. From the database GUI you can easily create infractions, reprint them if needed and handle them.
 
-Templates use the `.sdoc` format, for more info see https://github.com/ShrekshelleraiserCC/shrekword/.
+Templates use the `.sdoc` format, for more info see [shrekword by ShrekshelleraiserCC](https://github.com/ShrekshelleraiserCC/shrekword/).
 
 ## Demo
 A web demo has been implemented using [copy cat](https://github.com/SquidDev-CC/copy-cat)  
