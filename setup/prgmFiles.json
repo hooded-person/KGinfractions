@@ -90,7 +90,8 @@
             ]
         },
         "examples.testData": {
-            "name": "Test data for database",
+            "name": "Example data for database",
+            "description":"Adds a couple of infractions to the database to show how this looks",
             "dirs": [
                 "database"
             ],
@@ -99,7 +100,8 @@
             ]
         },
         "examples.testUsers": {
-            "name": "Test users for user autocompletion",
+            "name": "Example users for user autocompletion",
+            "description":"Adds some usernames to the username cache for user autocompletion",
             "dependencies": [
                 "completion.username"
             ],
