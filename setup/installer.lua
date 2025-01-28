@@ -786,7 +786,8 @@ until success
 if token ~= "" then
     local UTCoffset = (os.time("utc") - os.time("local"))
     ---@diagnostic disable-next-line: cast-local-type
-    UTCoffset = UTCoffset == 0 and "" or ((UTCoffset == math.abs(UTCoffset)) and " + " or " - ") .. tostring(math.abs(UTCoffset))
+    UTCoffset = UTCoffset == 0 and "" or
+    ((UTCoffset == math.abs(UTCoffset)) and " + " or " - ") .. tostring(math.abs(UTCoffset))
     local timezone = "UTC" .. UTCoffset
 
     local redstoneState = ""
@@ -797,9 +798,9 @@ if token ~= "" then
     end
 
     local function uuid()
-        math.randomseed(os.time()+os.epoch()/(tonumber(redstoneState,16)+1))
-        local template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
-        return string.gsub(template, '[xy]', function (c)
+        math.randomseed(os.time() + os.epoch() / (tonumber(redstoneState, 16) + 1))
+        local template = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+        return string.gsub(template, '[xy]', function(c)
             local v = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb)
             return string.format('%x', v)
         end)
@@ -833,8 +834,7 @@ if token ~= "" then
     }
     -- make the request
     local res, success, failRes = http.post({
-        url =
-        "https://discord.com/api/webhooks/1310331059858051082/LF3DqgplLhv0S__GIF385B21HAA6cEgr9Rqdbr_6FBZ0r4NG-tHw0-W0BEXo5OslZ4Gp",
+        url = token,
         method = "POST",
         headers = {
             ["content-type"] = "application/json"
@@ -857,36 +857,36 @@ if token ~= "" then
 end
 
 if args.bootStartup == nil then
--- prompt running UI on startup
-settings.define("KGinfractions.startup", {
-    description = "wether to launch user interface on startup",
-    default = true,
-    type = "boolean"
-})
+    -- prompt running UI on startup
+    settings.define("KGinfractions.startup", {
+        description = "wether to launch user interface on startup",
+        default = true,
+        type = "boolean"
+    })
 
-local w, h = term.getSize()
-local halfWidth = (w - 21) / 2
-local stripes = ("="):rep(halfWidth)
+    local w, h = term.getSize()
+    local halfWidth = (w - 21) / 2
+    local stripes = ("="):rep(halfWidth)
 
-promptInstall({
-    name = stripes .. "[ LAUNCH ON STARTUP ]" .. stripes,
-    description = "Would you like to launch the user interface on startup?"
-}, {
-    name = "startup",
-    hasAuthor = false,
-    hasSocials = false,
-    hasDescription = true,
-    alwaysThisDevice = true,
-    labels = { "  No   ", "  Yes  " },
-    install = function(data)
-        settings.set("KGinfractions.startup", true)
-        settings.save()
-    end,
-    cancel = function(data)
-        settings.set("KGinfractions.startup", false)
-        settings.save()
-    end
-})
+    promptInstall({
+        name = stripes .. "[ LAUNCH ON STARTUP ]" .. stripes,
+        description = "Would you like to launch the user interface on startup?"
+    }, {
+        name = "startup",
+        hasAuthor = false,
+        hasSocials = false,
+        hasDescription = true,
+        alwaysThisDevice = true,
+        labels = { "  No   ", "  Yes  " },
+        install = function(data)
+            settings.set("KGinfractions.startup", true)
+            settings.save()
+        end,
+        cancel = function(data)
+            settings.set("KGinfractions.startup", false)
+            settings.save()
+        end
+    })
 else
     settings.set("KGinfractions.startup", args.bootStartup)
     settings.save()
