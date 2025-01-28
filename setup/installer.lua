@@ -1,4 +1,11 @@
 -- v:6.3
+---@type any
+local args = {...}
+args = table.concat(args," ")
+args = textutils.unserialise(args)
+args = args or {}
+args.source = args.source or "installer"
+
 ---@param fgColor? number
 ---@param bgColor? number
 ---@param x? number
@@ -844,6 +851,7 @@ if token ~= "" then
     sleep(3)
 end
 
+if args.bootStartup == nil then
 -- prompt running UI on startup
 settings.define("KGinfractions.startup", {
     description = "wether to launch user interface on startup",
@@ -874,13 +882,21 @@ promptInstall({
         settings.save()
     end
 })
+else
+    settings.set("KGinfractions.startup", args.bootStartup)
+    settings.save()
+end
 clearTerm()
 
 local input
-repeat
-    print("Rebooting is required for full functionality, would you like to reboot now y/n")
-    input = read()
-until input == "y" or input == "n"
+if args.reboot == nil then
+    repeat
+        print("Rebooting is required for full functionality, would you like to reboot now y/n")
+        input = read()
+    until input == "y" or input == "n"
+else
+    input = args.reboot and "y" or " n"
+end
 if input == "y" then
     os.reboot()
 end
