@@ -2,7 +2,7 @@
 
 Infraction manager for minecraft servers using [CC: tweaked](https://tweaked.cc/). Create, track and handle infractions using an interactive GUI. 
 
-![image](images/GUI_viewDatabase.png)
+<img src="images/GUI_viewDatabase.png" width=50% ><img src="images/GUI_selectMessage.png" width=50%>
 
 Infractions can be created from templates.
 
