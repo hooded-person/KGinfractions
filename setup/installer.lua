@@ -525,10 +525,14 @@ end
 -- Handle settings
 for setting, info in pairs(prgmFiles.settings) do
     clearTerm()
-    local repChar = type(info.obscure) == "string" and info.obscure or (info.obscure and "*" or nil)
-    print(info.prompt)
-    local input = read(repChar)
-    settings.set(setting, input)
+    if args.settings == nil or args.settings[setting] == nil then
+        local repChar = type(info.obscure) == "string" and info.obscure or (info.obscure and "*" or nil)
+        print(info.prompt)
+        local input = read(repChar)
+        settings.set(setting, input)
+    elseif args.settings ~= nil and args.settings[setting] ~= nil then
+        settings.set(setting, args.settings[setting])
+    end
     settings.save()
 end
 
