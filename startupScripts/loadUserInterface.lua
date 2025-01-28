@@ -8,7 +8,9 @@ settings.define("KGinfractions.root", {
     default = "/",
     type = "string"
 })
+local projectRoot = settings.get("KGinfractions.root")
+
+shell.setAlias("viewDatabase", fs.combine(projectRoot, "userFacing/viewDatabase.lua"))
 if settings.get("KGinfractions.startup") then
-    local projectRoot = settings.get("KGinfractions.root")
     shell.run("fg " .. fs.combine(projectRoot, "userFacing/viewDatabase.lua"))
 end

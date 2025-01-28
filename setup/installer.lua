@@ -903,4 +903,5 @@ end
 
 clearTerm()
 
-print("installed successfully, run 'userfacing/viewDatabase.lua' to start")
+shell.setAlias("viewDatabase", fs.combine(projectRoot, "userFacing/viewDatabase.lua"))
+print("installed successfully, run 'viewDatabase' to start")
