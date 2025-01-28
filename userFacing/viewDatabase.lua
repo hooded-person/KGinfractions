@@ -7,7 +7,7 @@ local function combinePath(...)
         type = "string"
     })
     local projectRoot = settings.get("KGinfractions.root")
-    return "/"..fs.combine(projectRoot, ...)
+    return "/" .. fs.combine(projectRoot, ...)
 end
 
 local db = require(combinePath("database/addProcessing"))
@@ -28,6 +28,10 @@ settings.define("KGtemplateForge.typeColors", {
         ["HIDE"] = colors.gray,
     },
     type = "table",
+})
+settings.define("KGinfractions.debug", {
+    default = false,
+    type = "boolean",
 })
 
 -- aa
@@ -97,7 +101,7 @@ local handleExpiredWarn = makeHandler(
         db.set(UUID, oldEntry)
 
         sleep(2)
-    end, "expired", "warn"  -- what did i have in mind for these vars? no idea
+    end, "expired", "warn" -- what did i have in mind for these vars? no idea
 )
 -- boolean getter functions
 ---@param item table
@@ -579,7 +583,10 @@ local function getBarButtons(selection)
                     elseif func == nil then
                         error("function from file '/userFacing/selectMessage.lua' is nil but no error was given")
                     end
-                    pcall(func)
+                    local success, err = pcall(func)
+                    if not success and settings.get("KGinfractions.debug") then 
+                        error(err)
+                    end
                 end,
             }, {
                 label = "Template",
@@ -590,7 +597,10 @@ local function getBarButtons(selection)
                     elseif func == nil then
                         error("function from file '/userFacing/createTemplate.lua' is nil but no error was given")
                     end
-                    func()
+                    local success, err = pcall(func)
+                    if not success and settings.get("KGinfractions.debug") then 
+                        error(err)
+                    end
                 end,
             },
             },
@@ -658,15 +668,18 @@ local function getBarButtons(selection)
                         term.setTextColor(colors.white)
                         term.setBackgroundColor(colors.black)
                         local entry = db.get(uuid)
-                        local template = loadfile(combinePath("/main/getTemplate.lua"))("-a", entry.template[1], entry.template[2])
+                        local template = loadfile(combinePath("/main/getTemplate.lua"))("-a", entry.template[1],
+                            entry.template[2])
                         local formatData = entry.formatData
                         if template then
-                            local result = require(combinePath("/main/printMessage"))(template, formatData, "M.re-print", true)
+                            local result = require(combinePath("/main/printMessage"))(template, formatData, "M.re-print",
+                                true)
                             local continue = result.continue or "next" --  "retry", "next", "none" or `nil`
                             if continue == "none" then
                                 break
                             elseif continue == "retry" then
-                                local result = require(combinePath("/main/printMessage"))(template, formatData, "M.re-print", true)
+                                local result = require(combinePath("/main/printMessage"))(template, formatData,
+                                    "M.re-print", true)
                                 local continue = result.continue or "next"
                                 if continue == "none" or continue == "retry" then -- permit one retry (cause im to lazy to make it loop)
                                     break
@@ -676,7 +689,8 @@ local function getBarButtons(selection)
                             end
                         else
                             term.setTextColor(colors.orange)
-                            print("Template ["..entry.template[1].." "..entry.template[2].."] does not exist, skipping reprint")
+                            print("Template [" ..
+                            entry.template[1] .. " " .. entry.template[2] .. "] does not exist, skipping reprint")
                             term.setTextColor(colors.white)
                         end
                     end
