@@ -25,7 +25,6 @@ local repoLoc = "hooded-person" .. "/" .. "KGinfractions";
 local inbeteenShit = "/refs/heads/";
 local file = "main/setup/prgmFiles.json";
 local pgrmFilesURL = fileHost .. repoLoc .. inbeteenShit .. file;
-pgrmFilesURL = "http://127.0.0.1:3000/setup/prgmFiles.json"
 
 local fsChanges = {}
 
